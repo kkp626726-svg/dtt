@@ -1,0 +1,4 @@
+interface:
+  display_name: "我的写作风格"
+  short_description: "用我自己的口吻写 AI 公众号文章，短句、大白话、有观点、去 AI 味"
+  default_prompt: "用 $my-writing-voice 写一篇 AI 需求或提示词相关的文章"
