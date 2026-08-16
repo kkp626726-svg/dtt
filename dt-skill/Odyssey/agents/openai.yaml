@@ -1,0 +1,4 @@
+interface:
+  display_name: "Odyssey"
+  short_description: "Joseph Zbukvic watercolor album from a photo"
+  default_prompt: "Use $odyssey to turn this uploaded photo into a Joseph Zbukvic-style vertical two-part album with a photographic upper panel and a watercolor study below."
