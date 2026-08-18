@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{PRODUCT_NAME}} · 产品全景架构</title>
+  <style>
+    :root{--bg:#f7f8fb;--ink:#172033;--muted:#657086;--line:#cfd5e2;--confirmed:#2d9d62;--inferred:#d39a21;--recommended:#386ed8;--risk:#d74b4b;--card:#fff}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif}
+    main{width:min(1500px,96vw);margin:28px auto 70px}header{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:20px}h1{margin:0;font-size:30px}.sub{color:var(--muted)}
+    .legend{display:flex;flex-wrap:wrap;gap:8px}.badge{border-radius:999px;padding:5px 10px;background:#fff;border:2px solid}.confirmed{border-color:var(--confirmed)}.inferred{border-color:var(--inferred);border-style:dashed}.recommended{border-color:var(--recommended);border-style:dotted}.risk{border-color:var(--risk);color:var(--risk)}
+    .layer{display:grid;grid-template-columns:170px 1fr;gap:14px;margin:12px 0}.layer-name{display:flex;align-items:center;font-size:20px;font-weight:750}.surface{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}.surface h2{font-size:15px;margin:0 0 12px;color:var(--muted)}
+    .components{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.component{min-height:72px;border:2px solid var(--confirmed);border-radius:12px;padding:11px;background:#fbfffc}.component.inferred{background:#fffaf0}.component.recommended{background:#f6f8ff}.component.risk{background:#fff7f7}.component b{display:block;margin-bottom:4px}.component small{color:var(--muted)}
+    .flows{margin:20px 0;padding:16px;border-radius:18px;background:#101828;color:#e8edf8}.flows code{color:#9bd8ff}.arrow{color:#83a8ff;padding:0 5px}@media(max-width:720px){header{display:block}.legend{margin-top:12px}.layer{grid-template-columns:1fr}.layer-name{font-size:17px}}
+  </style>
+</head>
+<body><main>
+  <header><div><h1>{{PRODUCT_NAME}} · 产品全景架构</h1><div class="sub">As-Is、合理推断、建议设计与风险同图展示</div></div><div class="legend"><span class="badge confirmed">已确认</span><span class="badge inferred">合理推断</span><span class="badge recommended">建议设计</span><span class="badge risk">问题 / 冲突</span></div></header>
+  <section class="layer"><div class="layer-name">用户与渠道层</div><div class="surface"><h2>按证据增减入口与用户角色</h2><div class="components"><div class="component"><b>{{CHANNEL_OR_USER}}</b><small>E001</small></div></div></div></section>
+  <section class="layer"><div class="layer-name">交互与应用层</div><div class="surface"><h2>页面、工作台和业务功能</h2><div class="components"><div class="component"><b>{{APPLICATION}}</b><small>用户操作与页面反馈</small></div></div></div></section>
+  <section class="layer"><div class="layer-name">编排与执行层</div><div class="surface"><h2>无 Agent 产品可改为业务流程与服务编排</h2><div class="components"><div class="component inferred"><b>{{ORCHESTRATOR}}</b><small>合理推断 · E00X</small></div><div class="component risk"><b>{{STATE_CONFLICT}}</b><small>页面与任务状态冲突</small></div></div></div></section>
+  <section class="layer"><div class="layer-name">工具与服务层</div><div class="surface"><h2>业务工具、外部集成和公共服务</h2><div class="components"><div class="component"><b>{{TOOL_OR_SERVICE}}</b><small>调用 / 结果 / 状态写入</small></div></div></div></section>
+  <section class="layer"><div class="layer-name">模型与能力层</div><div class="surface"><h2>仅在产品使用模型或引擎时保留</h2><div class="components"><div class="component inferred"><b>{{MODEL_OR_ENGINE}}</b><small>能力、限制、成本与路由</small></div></div></div></section>
+  <section class="layer"><div class="layer-name">数据与知识层</div><div class="surface"><h2>上下文、业务数据、资产、版本与知识</h2><div class="components"><div class="component"><b>{{CONTEXT_OR_DATA}}</b><small>读取 / 写入 / 资产引用</small></div><div class="component recommended"><b>统一状态事实源</b><small>建议设计</small></div></div></div></section>
+  <section class="layer"><div class="layer-name">治理与基础设施</div><div class="surface"><h2>只写能力要求，不猜测厂商</h2><div class="components"><div class="component recommended"><b>权限、计费、幂等与追踪</b><small>建议设计</small></div></div></div></section>
+  <div class="flows"><code>用户需求</code><span class="arrow">→ 调用 →</span><code>应用/执行角色</code><span class="arrow">→ 读取 →</span><code>上下文</code><span class="arrow">→ 调用 →</span><code>工具/模型</code><span class="arrow">→ 写入 →</span><code>结果与状态</code><span class="arrow">→ 确认 →</span><code>用户或下游</code></div>
+</main></body></html>

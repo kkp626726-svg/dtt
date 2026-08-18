@@ -1,0 +1,19 @@
+mode: standard
+modules:
+  - journey
+  - actors
+  - architecture
+read_only: true
+stage_gate: true
+external_sources: official_only
+evidence_levels:
+  - confirmed
+  - inferred
+  - recommended
+  - unknown
+outputs:
+  - markdown
+  - html
+  - mermaid
+  - csv
+package: false

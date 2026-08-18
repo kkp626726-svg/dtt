@@ -1,0 +1,2 @@
+evidence_id,sequence,timestamp,source_type,source_location,actor,observable_text,observable_object,interpretation,evidence_level,notes
+E001,1,,screenshot,,,,,,,Confirmed,
