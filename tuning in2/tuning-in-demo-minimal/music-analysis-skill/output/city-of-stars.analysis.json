@@ -1,0 +1,535 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-29T12:56:18.185Z",
+  "piece": {
+    "piece_id": "city-of-stars",
+    "title": "City of Stars",
+    "composer": "Justin Hurwitz",
+    "audio_path": "知音-web-deploy/assets/audio/library/city-of-stars.mp3",
+    "duration_seconds": 231.804,
+    "source_piece_path": "knowledge/pieces/city-of-stars.json"
+  },
+  "analysis_status": "draft_ai_enriched",
+  "local_analysis": {
+    "toolchain": [
+      "ffprobe",
+      "ffmpeg",
+      "zhiyin-local-signal-analyzer"
+    ],
+    "metadata": {
+      "duration_seconds": 231.804172,
+      "source_sample_rate": 44100,
+      "source_channels": 2,
+      "codec_name": "mp3"
+    },
+    "analysis_sample_rate": 8000,
+    "window_seconds": 2,
+    "track_metrics": {
+      "loudness_p10_db": -28.531,
+      "loudness_median_db": -21.001,
+      "loudness_p90_db": -15.214,
+      "dynamic_range_db": 13.316,
+      "average_silence_ratio": 0.095
+    }
+  },
+  "whole_work": {
+    "measured_arc": [
+      {
+        "start_time": 0,
+        "stage": "开场",
+        "relative_energy": -0.504
+      },
+      {
+        "start_time": 18,
+        "stage": "展开",
+        "relative_energy": 0.377
+      },
+      {
+        "start_time": 50,
+        "stage": "展开",
+        "relative_energy": 0.564
+      },
+      {
+        "start_time": 78,
+        "stage": "抬升",
+        "relative_energy": 0.947
+      },
+      {
+        "start_time": 110,
+        "stage": "抬升",
+        "relative_energy": 0.314
+      },
+      {
+        "start_time": 126,
+        "stage": "展开",
+        "relative_energy": 0.549
+      },
+      {
+        "start_time": 148,
+        "stage": "高点",
+        "relative_energy": 0.97
+      },
+      {
+        "start_time": 180,
+        "stage": "转身",
+        "relative_energy": 0.373
+      },
+      {
+        "start_time": 214,
+        "stage": "收束",
+        "relative_energy": -0.218
+      }
+    ],
+    "loudest_stage": "高点",
+    "loudest_time": 148,
+    "quietest_stage": "开场",
+    "quietest_time": 0,
+    "audible_arc": "从弱到强的起伏与交替，经历数次递进后最终逐渐减弱收束",
+    "main_material": [
+      "单音色旋律线条",
+      "起伏的人声或主奏乐器线条"
+    ],
+    "texture": [
+      "单音层逐渐丰富为多层交织"
+    ],
+    "beginner_summary": "这是一首情绪起伏明显、由轻柔转为饱满再归于平静的抒情歌曲。",
+    "interpretation_boundaries": [
+      "本地信号分析不能确认作曲者意图",
+      "本地信号分析不能独立确认旋律、和声、调性、曲式或具体演奏技法",
+      "无法从声音确定具体的歌词含义",
+      "无法确定演奏者的私人情感"
+    ]
+  },
+  "segments": [
+    {
+      "segment_id": "city-of-stars-auto-01",
+      "start_time": 0,
+      "end_time": 18,
+      "stage": "开场",
+      "signal_metrics": {
+        "average_loudness_db": -35.248,
+        "relative_energy": -0.504,
+        "loudness_trend_db": 31.248,
+        "silence_ratio": 0.312
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "注意听声音由弱变强的过程",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "city-of-stars-auto-02",
+      "start_time": 18,
+      "end_time": 50,
+      "stage": "展开",
+      "signal_metrics": {
+        "average_loudness_db": -23.516,
+        "relative_energy": 0.377,
+        "loudness_trend_db": 0.249,
+        "silence_ratio": 0.061
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "感受声音密度的持续与稳定",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "city-of-stars-auto-03",
+      "start_time": 50,
+      "end_time": 78,
+      "stage": "展开",
+      "signal_metrics": {
+        "average_loudness_db": -21.018,
+        "relative_energy": 0.564,
+        "loudness_trend_db": -3.253,
+        "silence_ratio": 0.051
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "聆听声音逐渐回落的细节",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "city-of-stars-auto-04",
+      "start_time": 78,
+      "end_time": 110,
+      "stage": "抬升",
+      "signal_metrics": {
+        "average_loudness_db": -15.926,
+        "relative_energy": 0.947,
+        "loudness_trend_db": 1.798,
+        "silence_ratio": 0.026
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度高于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度高于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "留意音量提升后的饱满感",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "city-of-stars-auto-05",
+      "start_time": 110,
+      "end_time": 126,
+      "stage": "抬升",
+      "signal_metrics": {
+        "average_loudness_db": -24.347,
+        "relative_energy": 0.314,
+        "loudness_trend_db": 5.381,
+        "silence_ratio": 0.086
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "捕捉声音再次积蓄力量的过程",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "city-of-stars-auto-06",
+      "start_time": 126,
+      "end_time": 148,
+      "stage": "展开",
+      "signal_metrics": {
+        "average_loudness_db": -21.223,
+        "relative_energy": 0.549,
+        "loudness_trend_db": -2.498,
+        "silence_ratio": 0.049
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "注意音乐动态的舒缓变化",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "city-of-stars-auto-07",
+      "start_time": 148,
+      "end_time": 180,
+      "stage": "高点",
+      "signal_metrics": {
+        "average_loudness_db": -15.614,
+        "relative_energy": 0.97,
+        "loudness_trend_db": 1.523,
+        "silence_ratio": 0.026
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度高于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度高于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "感受全曲音量与情绪的高潮点",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "city-of-stars-auto-08",
+      "start_time": 180,
+      "end_time": 214,
+      "stage": "转身",
+      "signal_metrics": {
+        "average_loudness_db": -23.568,
+        "relative_energy": 0.373,
+        "loudness_trend_db": 4.769,
+        "silence_ratio": 0.071
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "留意音乐转折处的密度变化",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "city-of-stars-auto-09",
+      "start_time": 214,
+      "end_time": 231.804,
+      "stage": "收束",
+      "signal_metrics": {
+        "average_loudness_db": -31.434,
+        "relative_energy": -0.218,
+        "loudness_trend_db": -12.379,
+        "silence_ratio": 0.364
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "倾听音乐逐渐减弱直至消散的结尾",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    }
+  ],
+  "persona_runtime": {
+    "strategy": "shared_evidence_dynamic_rendering",
+    "stores_fixed_persona_answers": false,
+    "supported_musicians": [
+      "mozart",
+      "bach",
+      "beethoven"
+    ],
+    "lens_reference": "music-analysis-skill/references/persona-lenses.md"
+  },
+  "comparison_reference": {
+    "existing_segment_count": 10,
+    "path": "knowledge/pieces/city-of-stars.json"
+  },
+  "review": {
+    "required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "notes": []
+  },
+  "ai_enrichment": {
+    "model": "gemini-3.5-flash-lite-free",
+    "generated_at": "2026-08-29T12:56:30.629Z",
+    "request_count": 1
+  }
+}

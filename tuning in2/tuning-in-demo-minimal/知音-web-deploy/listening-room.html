@@ -1,0 +1,2669 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="与三位 AI 音乐家一起阅读真实乐谱、聆听和讨论音乐">
+  <title>共听剧场 · Tuning In</title>
+  <style>
+    :root {
+      --ink: #3d3932;
+      --muted: #756d60;
+      --paper: #f3e7c4;
+      --paper-light: #fbf4dc;
+      --staff: #756e62;
+      --accent: #b49145;
+      --accent-light: #ead79d;
+      --panel: #3d3a34;
+      --panel-text: #f8f0d8;
+      --score-width: 3560px;
+      --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --font-display: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-ui);
+      font-weight: 400;
+    }
+
+    body { overflow-x: hidden; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    .page {
+      position: relative;
+      min-height: 100svh;
+      overflow: hidden;
+      isolation: isolate;
+      padding: 25px clamp(18px, 3.5vw, 54px) 22px;
+      background-color: var(--paper);
+      background-image:
+        radial-gradient(circle at 14% 12%, rgba(255,255,255,.64), transparent 31%),
+        radial-gradient(circle at 82% 78%, rgba(158,118,44,.09), transparent 35%),
+        repeating-linear-gradient(8deg, rgba(111,87,43,.024) 0 1px, transparent 1px 7px),
+        repeating-linear-gradient(96deg, rgba(255,255,255,.16) 0 1px, transparent 1px 11px);
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      opacity: .38;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at 22% 30%, rgba(92,67,26,.08) 0 .7px, transparent .9px),
+        radial-gradient(circle at 68% 62%, rgba(255,255,255,.34) 0 .8px, transparent 1px);
+      background-size: 15px 17px, 19px 21px;
+      mix-blend-mode: multiply;
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .back-link {
+      justify-self: start;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .back-icon,
+    .round-button {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(61,57,50,.22);
+      border-radius: 50%;
+      background: rgba(255,249,228,.5);
+      cursor: pointer;
+      transition: transform .22s ease, border-color .22s ease, background .22s ease;
+    }
+
+    .back-link:hover .back-icon,
+    .back-link:focus-visible .back-icon,
+    .round-button:hover,
+    .round-button:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(180,145,69,.74);
+      background: rgba(250,237,194,.72);
+      outline: none;
+    }
+
+    .piece-heading { text-align: center; }
+    .piece-heading p {
+      margin: 0 0 4px;
+      color: #867652;
+      font-size: 11px;
+      letter-spacing: .19em;
+      text-transform: uppercase;
+    }
+    .piece-heading h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(20px, 2vw, 29px);
+      font-weight: 500;
+      letter-spacing: -.025em;
+    }
+    .piece-heading span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .top-actions {
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mode-switch {
+      display: flex;
+      padding: 3px;
+      border: 1px solid rgba(61,57,50,.18);
+      border-radius: 999px;
+      background: rgba(255,249,228,.48);
+    }
+
+    .mode-button {
+      min-height: 34px;
+      border: 0;
+      border-radius: 999px;
+      padding: 0 14px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .mode-button[aria-pressed="true"] {
+      color: #fff8e7;
+      background: var(--ink);
+    }
+    .mode-button:disabled {
+      cursor: not-allowed;
+      opacity: .38;
+    }
+
+    .media-file-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .theatre {
+      position: relative;
+      z-index: 2;
+      width: min(1500px, 100%);
+      margin: clamp(19px, 2.8vh, 31px) auto 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(290px, 31%);
+      gap: clamp(15px, 1.7vw, 25px);
+    }
+
+    .score-column { min-width: 0; }
+
+    .score-card {
+      position: relative;
+      min-height: clamp(500px, 64vh, 660px);
+      border: 1px solid rgba(99,79,40,.18);
+      border-radius: 30px 25px 34px 23px;
+      overflow: hidden;
+      background:
+        linear-gradient(96deg, rgba(92,67,26,.025), transparent 21%, rgba(255,255,255,.2) 48%, transparent 77%),
+        rgba(251,244,220,.72);
+      box-shadow: 0 24px 65px rgba(75,55,23,.09), inset 0 0 70px rgba(255,255,255,.28);
+    }
+
+    .score-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .45;
+      background-image: repeating-linear-gradient(1deg, rgba(95,72,33,.027) 0 1px, transparent 1px 8px);
+    }
+
+    .score-caption {
+      position: absolute;
+      z-index: 5;
+      top: 22px;
+      left: 25px;
+      right: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+
+    .score-caption strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: .05em;
+    }
+    .score-caption span { color: var(--muted); font-size: 11px; }
+
+    .live-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #7a6a45;
+      font-size: 11px;
+      letter-spacing: .08em;
+    }
+    .live-status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 5px rgba(180,145,69,.12);
+    }
+
+    .score-viewport {
+      position: absolute;
+      inset: 65px 0 116px;
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+    }
+
+    .score-sheet-stage {
+      position: absolute;
+      inset: 0 16px;
+      overflow: hidden;
+      border-radius: 16px;
+      background: rgba(255,255,255,.2);
+    }
+
+    .score-page {
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto;
+      opacity: .9;
+      mix-blend-mode: multiply;
+      transform: translate3d(0,0,0);
+      transform-origin: top left;
+      transition: opacity .45s ease;
+      will-change: transform;
+    }
+
+    .score-page[hidden] { display: none; }
+
+    .reveal-curtain {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 18%;
+      pointer-events: none;
+      background: linear-gradient(to right, rgba(247,237,207,.46), rgba(247,237,207,.74) 16%, rgba(247,237,207,.82));
+      backdrop-filter: blur(.25px);
+      transition: left .12s linear;
+    }
+
+    .measure-glow {
+      position: absolute;
+      z-index: 3;
+      top: 8px;
+      bottom: 8px;
+      left: 18%;
+      width: clamp(24px, 4vw, 48px);
+      transform: translateX(-50%);
+      pointer-events: none;
+      border-left: 1px solid rgba(180,145,69,.92);
+      border-right: 1px solid rgba(180,145,69,.28);
+      background: linear-gradient(to right, rgba(180,145,69,.2), rgba(255,229,147,.44), rgba(180,145,69,.12));
+      box-shadow: 0 0 18px rgba(180,145,69,.48);
+      transition: left .38s cubic-bezier(.2,.75,.25,1);
+    }
+
+    .measure-glow.is-pulsing {
+      animation: beat-light .64s ease-out;
+    }
+
+    .composer-note {
+      position: absolute;
+      z-index: 6;
+      top: 76px;
+      right: 27px;
+      max-width: min(330px, 42%);
+      border: 1px solid rgba(111,86,43,.16);
+      border-radius: 14px;
+      padding: 10px 13px;
+      color: #5a5247;
+      background: rgba(249,240,211,.9);
+      box-shadow: 0 10px 25px rgba(66,49,23,.07);
+      pointer-events: none;
+    }
+
+    .composer-note span {
+      display: block;
+      margin-bottom: 3px;
+      color: #9a7d3d;
+      font-size: 9px;
+      letter-spacing: .14em;
+    }
+
+    .composer-note p { margin: 0; font: 12px/1.55 Georgia, "Songti SC", serif; }
+
+    .score-strip {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: var(--score-width);
+      height: 330px;
+      transform: translate3d(0,-50%,0);
+      will-change: transform;
+    }
+
+    #scoreSvg { width: 100%; height: 100%; overflow: visible; }
+    .staff-line { stroke: var(--staff); stroke-width: 1.25; opacity: .78; }
+    .bar-line { stroke: var(--staff); stroke-width: 1; opacity: .47; }
+    .score-clef { fill: #504b43; font-family: "Apple Symbols", "Times New Roman", serif; }
+    .time-signature { fill: #504b43; font: 600 22px Georgia, serif; }
+    .measure-number { fill: #918674; font: 10px Arial, sans-serif; }
+    .note-group { opacity: .09; transition: opacity .55s ease, filter .35s ease; }
+    .note-group.is-revealed { opacity: .78; }
+    .note-group.is-active { opacity: 1; filter: drop-shadow(0 0 7px rgba(180,145,69,.92)); }
+    .note-group.is-active .note-ink { fill: var(--accent); stroke: var(--accent); }
+    .note-group.is-active .note-open { fill: var(--paper-light); stroke: var(--accent); }
+    .note-ink { fill: #504b43; stroke: #504b43; stroke-width: 1.45; stroke-linecap: round; }
+    .note-open { fill: var(--paper-light); stroke: #504b43; stroke-width: 1.65; }
+    .rest-mark { fill: #504b43; font-family: Georgia, serif; font-size: 21px; }
+    .dynamic-mark { fill: #70685d; font: italic 15px Georgia, serif; }
+    .slur { fill: none; stroke: #554f46; stroke-width: 1.5; stroke-linecap: round; }
+
+    .playhead {
+      position: absolute;
+      z-index: 4;
+      top: 72px;
+      bottom: 20px;
+      left: 50%;
+      width: 1px;
+      pointer-events: none;
+      background: linear-gradient(to bottom, transparent, rgba(180,145,69,.82) 14%, rgba(180,145,69,.82) 86%, transparent);
+      box-shadow: 0 0 14px rgba(180,145,69,.42);
+      opacity: .75;
+    }
+    .playhead::before {
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: -4px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(180,145,69,.12);
+    }
+
+    .video-placeholder {
+      position: absolute;
+      inset: 65px 25px 116px;
+      display: none;
+      place-items: center;
+      border-radius: 23px;
+      color: #746b5e;
+      text-align: center;
+      background:
+        linear-gradient(rgba(61,57,50,.12), rgba(61,57,50,.35)),
+        radial-gradient(circle at 50% 35%, rgba(255,249,226,.8), rgba(187,157,92,.28));
+    }
+    .video-placeholder.is-visible { display: grid; }
+    .video-placeholder svg { width: 54px; height: 54px; margin-bottom: 12px; opacity: .74; }
+    .video-placeholder p { margin: 0; font-family: var(--font-display); font-size: 20px; }
+    .video-placeholder span { display: block; margin-top: 7px; font-size: 12px; }
+
+    .soundscape-viewport {
+      position: absolute;
+      inset: 65px 16px 116px;
+      overflow: hidden;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at var(--glow-x, 16%) 35%, rgba(255,239,175,.74), transparent 18%),
+        linear-gradient(180deg, rgba(246,231,191,.42), rgba(220,196,137,.24) 52%, rgba(107,91,65,.15));
+      transition: opacity .35s ease, visibility .35s ease;
+    }
+
+    .soundscape-viewport.is-hidden { opacity: 0; visibility: hidden; }
+
+    .soundscape-sky,
+    .soundscape-water,
+    .soundscape-haze,
+    .soundscape-grain { position: absolute; inset: 0; pointer-events: none; }
+
+    .soundscape-sky {
+      background:
+        radial-gradient(circle at 74% 18%, rgba(255,251,226,.82) 0 4%, transparent 4.3%),
+        radial-gradient(ellipse at 48% 88%, rgba(255,246,214,.34), transparent 48%);
+    }
+
+    .soundscape-haze {
+      opacity: .7;
+      background:
+        radial-gradient(ellipse at 20% 54%, rgba(255,255,255,.38), transparent 27%),
+        radial-gradient(ellipse at 68% 45%, rgba(255,249,224,.34), transparent 31%);
+      transform: translateX(var(--drift-x, 0%));
+      transition: transform .35s linear;
+    }
+
+    .soundscape-water {
+      top: 48%;
+      background:
+        repeating-radial-gradient(ellipse at 50% 100%, transparent 0 24px, rgba(91,78,58,.09) 25px 26px, transparent 27px 44px),
+        linear-gradient(180deg, transparent, rgba(126,105,70,.08));
+      transform: scaleX(1.08) translateY(var(--breath-y, 0px));
+    }
+
+    .soundscape-grain {
+      opacity: .26;
+      mix-blend-mode: multiply;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(70,53,27,.18) 0 .55px, transparent .8px),
+        radial-gradient(circle at 70% 65%, rgba(255,255,255,.5) 0 .7px, transparent .9px);
+      background-size: 13px 17px, 19px 23px;
+    }
+
+    .sound-orbit {
+      position: absolute;
+      left: 50%;
+      top: 47%;
+      width: clamp(180px, 28vw, 340px);
+      aspect-ratio: 1;
+      transform: translate(-50%,-50%);
+      border: 1px solid rgba(180,145,69,.23);
+      border-radius: 50%;
+      box-shadow: 0 0 60px rgba(180,145,69,.12), inset 0 0 50px rgba(255,250,226,.23);
+    }
+
+    .sound-orbit::before,
+    .sound-orbit::after {
+      content: "";
+      position: absolute;
+      inset: 16%;
+      border: 1px solid rgba(180,145,69,.2);
+      border-radius: 50%;
+      animation: sound-breathe 4.8s ease-in-out infinite;
+    }
+
+    .sound-orbit::after { inset: 31%; animation-delay: -1.6s; }
+
+    .sound-core {
+      position: absolute;
+      left: 50%;
+      top: 47%;
+      width: 12px;
+      height: 12px;
+      transform: translate(-50%,-50%);
+      border-radius: 50%;
+      background: #c9a758;
+      box-shadow: 0 0 0 9px rgba(201,167,88,.11), 0 0 42px 15px rgba(217,181,94,.38);
+    }
+
+    .sound-particles { position: absolute; inset: 0; pointer-events: none; }
+    .sound-particles i {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: var(--size, 5px);
+      height: var(--size, 5px);
+      border-radius: 50%;
+      background: rgba(112,91,54,.52);
+      box-shadow: 0 0 12px rgba(213,179,96,.38);
+      animation: particle-drift var(--duration, 5s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+      animation-play-state: paused;
+    }
+    .soundscape-viewport.is-playing .sound-particles i { animation-play-state: running; }
+
+    .sound-moment {
+      position: absolute;
+      z-index: 3;
+      left: 50%;
+      top: 47%;
+      width: min(410px, 72%);
+      transform: translate(-50%,-50%);
+      text-align: center;
+      pointer-events: none;
+    }
+    .sound-moment span { color: #9a7d3d; font-size: 10px; letter-spacing: .18em; }
+    .sound-moment h2 { margin: 8px 0 7px; font: 500 clamp(25px, 3vw, 43px)/1.1 Georgia, "Songti SC", serif; }
+    .sound-moment p { margin: 0 auto; max-width: 360px; color: #685f51; font: 13px/1.65 Georgia, "Songti SC", serif; }
+
+    .listening-lenses {
+      position: absolute;
+      z-index: 4;
+      left: 18px;
+      bottom: 50px;
+      display: flex;
+      gap: 8px;
+    }
+    .listening-lens {
+      min-width: 88px;
+      border: 1px solid rgba(100,78,40,.14);
+      border-radius: 12px;
+      padding: 8px 10px;
+      color: #7a705f;
+      background: rgba(253,246,221,.6);
+      transition: color .3s ease, background .3s ease, transform .3s ease, box-shadow .3s ease;
+    }
+    .listening-lens b { display: block; margin-bottom: 2px; font-size: 11px; font-weight: 500; }
+    .listening-lens span { font-size: 9px; }
+    .listening-lens.is-active {
+      color: #443d34;
+      background: rgba(255,247,217,.94);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 22px rgba(94,70,30,.11);
+    }
+
+    .journey-track {
+      position: absolute;
+      z-index: 4;
+      left: 20px;
+      right: 20px;
+      bottom: 18px;
+      height: 18px;
+      border-top: 1px solid rgba(91,76,53,.2);
+    }
+    .journey-track::before {
+      content: "";
+      position: absolute;
+      top: -1px;
+      left: 0;
+      width: var(--progress-width, 0%);
+      border-top: 1px solid rgba(180,145,69,.88);
+    }
+    .journey-marker {
+      position: absolute;
+      top: -5px;
+      left: var(--progress-width, 0%);
+      width: 9px;
+      height: 9px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: #b49145;
+      box-shadow: 0 0 0 5px rgba(180,145,69,.13);
+      transition: left .25s linear;
+    }
+    .journey-labels { display: flex; justify-content: space-between; padding-top: 6px; color: #8c806c; font-size: 8px; letter-spacing: .08em; }
+
+    .creation-notes {
+      position: absolute;
+      z-index: 5;
+      inset: 65px 16px 116px;
+      display: none;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+      padding: 22px;
+      overflow: auto;
+    }
+    .creation-notes.is-visible { display: grid; }
+    .creation-note-card {
+      border: 1px solid rgba(96,73,37,.14);
+      border-radius: 17px;
+      padding: 18px;
+      background: rgba(255,248,225,.65);
+    }
+    .creation-note-card span { color: #a18549; font-size: 9px; letter-spacing: .14em; }
+    .creation-note-card h3 { margin: 8px 0 7px; font: 500 18px Georgia, "Songti SC", serif; }
+    .creation-note-card p { margin: 0; color: #6f6556; font-size: 11px; line-height: 1.7; }
+
+    .performance-viewport {
+      position: absolute;
+      overflow: hidden;
+      border-radius: 20px;
+      background: #171512;
+    }
+
+    .performance-viewport { inset: 65px 16px 165px; }
+    .listening-guide-panel {
+      position: relative;
+      z-index: 7;
+      width: 100%;
+      margin-top: 12px;
+      padding: 17px 18px 16px;
+      border: 1px solid rgba(246,224,166,.28);
+      border-radius: 17px;
+      color: #fff6df;
+      background: rgba(35,31,26,.86);
+      box-shadow: 0 15px 44px rgba(0,0,0,.28);
+      backdrop-filter: blur(14px);
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition: opacity .24s ease, visibility .24s ease, transform .24s ease;
+    }
+
+    .listening-guide-panel.is-visible { opacity: 1; visibility: visible; transform: none; }
+
+    .listening-guide-content { position: relative; z-index: 1; }
+    .listening-guide-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 8px;
+      color: #d7bc76;
+      font-size: 10px;
+      letter-spacing: .16em;
+    }
+    .listening-guide-eyebrow::before {
+      content: "";
+      width: 24px;
+      height: 1px;
+      background: currentColor;
+    }
+    .listening-guide-panel h3 {
+      margin: 0;
+      font: 500 clamp(18px, 2vw, 24px)/1.22 var(--font-display);
+      letter-spacing: -.025em;
+    }
+    .listening-guide-hint {
+      max-width: 590px;
+      margin: 8px 0 0;
+      color: rgba(255,246,223,.78);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+    .listening-focus-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 11px;
+    }
+    .listening-focus-list span {
+      border: 1px solid rgba(225,197,126,.26);
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: #ecd899;
+      background: rgba(255,248,226,.055);
+      font-size: 11px;
+    }
+    .listening-guide-action {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 13px;
+      border: 1px solid rgba(229,205,145,.42);
+      border-radius: 999px;
+      padding: 0 12px;
+      color: #fff4d5;
+      background: rgba(255,248,225,.08);
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      transition: background .2s ease, transform .2s ease;
+    }
+    .listening-guide-action:hover,
+    .listening-guide-action:focus-visible {
+      transform: translateY(-1px);
+      background: rgba(226,195,119,.16);
+      outline: 2px solid rgba(226,195,119,.38);
+      outline-offset: 3px;
+    }
+    .cue-perspective-strip {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(225,197,126,.18);
+    }
+    .cue-perspective-strip[hidden] { display: none; }
+    .cue-perspective-heading {
+      margin: 0 0 7px;
+      color: #dbc47f;
+      font-size: 10px;
+      letter-spacing: .1em;
+    }
+    .cue-perspective-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+    .cue-perspective-card {
+      min-width: 0;
+      border: 1px solid rgba(225,197,126,.2);
+      border-radius: 12px;
+      padding: 8px 9px;
+      color: inherit;
+      background: rgba(255,248,226,.055);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .2s ease, background .2s ease, transform .2s ease;
+    }
+    .cue-perspective-card:hover,
+    .cue-perspective-card:focus-visible,
+    .cue-perspective-card.is-selected {
+      border-color: rgba(225,197,126,.58);
+      background: rgba(225,197,126,.13);
+      transform: translateY(-1px);
+      outline: none;
+    }
+    .cue-perspective-card strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #f1d98f;
+      font-size: 10px;
+    }
+    .cue-perspective-card span {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      color: #eee4ca;
+      font-size: 9px;
+      line-height: 1.45;
+    }
+
+    .performance-video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      background: #111;
+    }
+
+    .performance-viewport::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      pointer-events: none;
+      box-shadow: inset 0 0 28px rgba(18,14,9,.18);
+    }
+
+    .performance-credit {
+      position: absolute;
+      z-index: 4;
+      left: 18px;
+      top: 16px;
+      border: 1px solid rgba(255,244,211,.25);
+      border-radius: 999px;
+      padding: 7px 11px;
+      color: #f6e8c2;
+      background: rgba(31,27,22,.62);
+      backdrop-filter: blur(7px);
+      font-size: 10px;
+      letter-spacing: .08em;
+      pointer-events: none;
+    }
+
+    .cue-overlay {
+      position: absolute;
+      z-index: 5;
+      left: 50%;
+      bottom: 42px;
+      width: min(440px, 68%);
+      transform: translate(-50%,12px);
+      border: 1px solid rgba(255,244,211,.26);
+      border-radius: 16px;
+      padding: 11px 15px;
+      color: #fff4d5;
+      text-align: center;
+      background: rgba(43,38,32,.76);
+      box-shadow: 0 14px 38px rgba(0,0,0,.2);
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .32s ease, transform .32s ease, visibility .32s ease;
+      pointer-events: none;
+    }
+
+    .cue-overlay.is-visible { opacity: 1; visibility: visible; transform: translate(-50%,0); }
+    .cue-overlay.is-suppressed { opacity: 0; visibility: hidden; }
+    .cue-overlay span { display: block; margin-bottom: 4px; color: #d7bc76; font-size: 9px; letter-spacing: .15em; }
+    .cue-overlay strong { display: block; font: 500 16px Georgia, "Songti SC", serif; }
+    .cue-overlay p { margin: 4px 0 0; color: #e6dcc5; font-size: 10px; line-height: 1.5; }
+
+    .cue-timeline {
+      position: absolute;
+      z-index: 6;
+      left: 24px;
+      right: 24px;
+      bottom: 8px;
+      height: 28px;
+      border: 0;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .cue-timeline::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      border-top: 1px solid rgba(255,244,211,.42);
+    }
+
+    .cue-timeline-progress {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: var(--video-progress, 0%);
+      border-top: 1px solid #d5b86b;
+      transition: width .2s linear;
+    }
+    .cue-timeline.is-dragging .cue-timeline-progress { transition: none; }
+
+    .cue-dot {
+      position: absolute;
+      z-index: 2;
+      top: calc(50% - 5px);
+      width: 11px;
+      height: 11px;
+      transform: translateX(-50%);
+      border: 2px solid rgba(255,244,211,.86);
+      border-radius: 50%;
+      padding: 0;
+      background: #675f52;
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .cue-dot:hover,
+    .cue-dot:focus-visible { transform: translateX(-50%) scale(1.35); outline: none; box-shadow: 0 0 0 5px rgba(213,184,107,.15); }
+    .cue-dot.is-passed { background: #d0af5d; }
+    .cue-dot.is-active { background: #fff0bd; box-shadow: 0 0 0 6px rgba(213,184,107,.2); }
+
+    .emotion-map-panel { padding: 0; background: rgba(249,240,211,.78); }
+    .emotion-map-zoom {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: 0;
+      padding: 0;
+      overflow: hidden;
+      color: var(--ink);
+      background: transparent;
+      cursor: zoom-in;
+    }
+    .emotion-map-zoom:focus-visible { outline: 2px solid rgba(151,117,51,.72); outline-offset: -5px; }
+    .emotion-map-zoom img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      mix-blend-mode: multiply;
+      transform: scale(1);
+      transform-origin: center;
+      transition: transform .45s cubic-bezier(.2,.8,.2,1), filter .35s ease;
+    }
+    .emotion-map-zoom:hover img { transform: scale(1.025); filter: contrast(1.03); }
+    .emotion-map-zoom-hint {
+      position: absolute;
+      right: 17px;
+      bottom: 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(91,70,34,.16);
+      border-radius: 999px;
+      padding: 7px 11px;
+      color: #5f5545;
+      background: rgba(255,248,225,.86);
+      box-shadow: 0 7px 22px rgba(69,51,23,.1);
+      backdrop-filter: blur(7px);
+      font-size: 10px;
+      letter-spacing: .05em;
+    }
+
+    .composer-note { display: none; }
+
+    .message.is-cue {
+      margin: 8px 0;
+      border: 1px solid rgba(213,189,121,.2);
+      border-radius: 14px;
+      padding: 11px 10px;
+      background: rgba(255,247,220,.045);
+    }
+    .cue-message-label {
+      display: inline-flex;
+      margin-bottom: 6px;
+      border-radius: 999px;
+      padding: 3px 7px;
+      color: #ddc681;
+      background: rgba(213,189,121,.1);
+      font-size: 9px;
+      letter-spacing: .08em;
+    }
+
+    .companions {
+      position: absolute;
+      z-index: 8;
+      left: 50%;
+      bottom: 14px;
+      width: min(560px, 76%);
+      height: 120px;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: clamp(27px, 5vw, 66px);
+      pointer-events: none;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity .28s ease, visibility .28s ease, transform .28s ease;
+    }
+    .companions.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-50%) translateY(12px);
+      pointer-events: none;
+    }
+
+    .companion {
+      position: relative;
+      width: 90px;
+      height: 105px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      animation: companion-float 4.7s ease-in-out infinite;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    .companion:nth-child(2) { animation-delay: -1.4s; }
+    .companion:nth-child(3) { animation-delay: -2.8s; }
+    .companion img {
+      position: relative;
+      z-index: 2;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 9px 8px rgba(63,48,25,.15));
+      transition: transform .35s cubic-bezier(.2,.8,.2,1), filter .35s ease;
+    }
+    .companion::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 9px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      transform: translateX(-50%) scale(.74);
+      opacity: 0;
+      background: radial-gradient(circle, rgba(255,240,179,.68), rgba(218,174,72,.22) 47%, transparent 72%);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+    .companion.is-speaking::before { opacity: 1; transform: translateX(-50%) scale(1.3); }
+    .companion.is-speaking img { transform: translateY(-8px) scale(1.12); filter: drop-shadow(0 0 13px rgba(219,178,77,.58)); }
+    .companion.is-selected::after {
+      content: "已选择";
+      position: absolute;
+      z-index: 6;
+      top: 0;
+      right: -8px;
+      border: 1px solid rgba(139,111,55,.3);
+      border-radius: 999px;
+      padding: 2px 6px;
+      color: #58451f;
+      background: #f2d98e;
+      font-size: 8px;
+      box-shadow: 0 4px 12px rgba(75,54,24,.15);
+    }
+    .companion.is-speaking .companion-name {
+      color: #fff4cf;
+      background: rgba(139,111,55,.96);
+      box-shadow: 0 0 0 4px rgba(201,165,83,.12), 0 6px 16px rgba(75,54,24,.2);
+    }
+    .companion:focus-visible { outline: 2px solid rgba(180,145,69,.72); outline-offset: 5px; border-radius: 18px; }
+    .companion-name {
+      position: absolute;
+      z-index: 4;
+      left: 50%;
+      bottom: -4px;
+      transform: translateX(-50%);
+      min-width: max-content;
+      padding: 3px 9px;
+      border-radius: 999px;
+      color: #f8f0d8;
+      background: rgba(61,58,52,.88);
+      font-size: 10px;
+      letter-spacing: .04em;
+    }
+    .speech-bubble {
+      position: absolute;
+      z-index: 6;
+      left: 50%;
+      bottom: 94px;
+      width: min(240px, calc(100vw - 32px));
+      min-height: 46px;
+      max-height: none;
+      display: block;
+      overflow: visible;
+      transform: translate(-50%,8px) scale(.96);
+      border: 1px solid rgba(255,244,211,.22);
+      border-radius: 14px;
+      padding: 9px 12px 12px;
+      color: #fff4d7;
+      background: rgba(54,50,43,.9);
+      box-shadow: 0 12px 28px rgba(48,37,20,.17);
+      backdrop-filter: blur(9px);
+      font-size: 11px;
+      line-height: 1.55;
+      text-align: left;
+      text-wrap: pretty;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .25s ease, transform .3s cubic-bezier(.2,.8,.2,1), visibility .25s ease;
+      pointer-events: none;
+    }
+    .speech-bubble::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -9px;
+      width: 18px;
+      height: 10px;
+      transform: translateX(-50%);
+      clip-path: polygon(12% 0,88% 0,50% 100%);
+      background: rgba(54,50,43,.9);
+    }
+    .companion.is-speaking .speech-bubble {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%,0) scale(1);
+    }
+
+    .map-lightbox {
+      position: fixed;
+      z-index: 80;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background: rgba(39,34,27,.82);
+      backdrop-filter: blur(12px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .25s ease, visibility .25s ease;
+    }
+    .map-lightbox.is-visible { opacity: 1; visibility: visible; }
+    .map-lightbox img {
+      width: auto;
+      max-width: min(1500px, 96vw);
+      max-height: 92vh;
+      object-fit: contain;
+      border-radius: 18px;
+      background: #f7edc9;
+      box-shadow: 0 30px 90px rgba(0,0,0,.34);
+    }
+    .map-lightbox-close {
+      position: absolute;
+      z-index: 2;
+      top: 20px;
+      right: 20px;
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,247,222,.3);
+      border-radius: 50%;
+      color: #fff7de;
+      background: rgba(55,49,41,.78);
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+    }
+    .map-lightbox-close:focus-visible { outline: 2px solid #f0d886; outline-offset: 3px; }
+
+    .media-library {
+      position: fixed;
+      z-index: 75;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(43,37,29,.56);
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .25s ease, visibility .25s ease;
+    }
+    .media-library.is-visible { opacity: 1; visibility: visible; }
+    .media-library-panel {
+      width: min(760px, 94vw);
+      max-height: min(720px, 88vh);
+      overflow: auto;
+      border: 1px solid rgba(91,70,34,.2);
+      border-radius: 26px 22px 29px 20px;
+      padding: 24px;
+      background:
+        repeating-linear-gradient(7deg, rgba(105,80,38,.024) 0 1px, transparent 1px 8px),
+        #f8efcf;
+      box-shadow: 0 32px 90px rgba(42,32,19,.28);
+    }
+    .media-library-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .media-library-head p {
+      margin: 0 0 5px;
+      color: #9a824f;
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .media-library-head h2 {
+      margin: 0;
+      font: 500 25px Georgia, "Songti SC", serif;
+    }
+    .media-library-head span {
+      display: block;
+      margin-top: 6px;
+      color: #756b5b;
+      font-size: 11px;
+    }
+    .library-close {
+      flex: 0 0 auto;
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(61,57,50,.2);
+      border-radius: 50%;
+      background: rgba(255,250,232,.68);
+      cursor: pointer;
+      font-size: 21px;
+    }
+    .library-carousel {
+      display: grid;
+      grid-template-columns: 40px minmax(0,1fr) 40px;
+      align-items: center;
+      gap: 10px;
+    }
+    .library-grid {
+      display: flex;
+      gap: 13px;
+      overflow-x: auto;
+      padding: 5px 3px 12px;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .library-grid::-webkit-scrollbar { display: none; }
+    .library-arrow {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(61,57,50,.2);
+      border-radius: 50%;
+      background: rgba(255,250,232,.76);
+      cursor: pointer;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .library-arrow:hover,
+    .library-arrow:focus-visible { transform: scale(1.06); border-color: rgba(164,127,52,.6); background: #fff5d3; outline: none; }
+    .library-item {
+      position: relative;
+      flex: 0 0 calc((100% - 26px) / 3);
+      min-width: 0;
+      scroll-snap-align: start;
+      border: 1px solid rgba(98,75,37,.15);
+      border-radius: 18px;
+      padding: 0;
+      overflow: hidden;
+      text-align: left;
+      background: rgba(255,249,226,.65);
+      cursor: pointer;
+      transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease;
+    }
+    .library-item:hover,
+    .library-item:focus-visible {
+      transform: translateY(-4px);
+      border-color: rgba(164,127,52,.58);
+      box-shadow: 0 14px 30px rgba(72,53,24,.12);
+      outline: none;
+    }
+    .library-item.is-current { border-color: rgba(145,109,40,.72); box-shadow: 0 0 0 3px rgba(185,147,65,.12); }
+    .library-cover {
+      position: relative;
+      height: 116px;
+      display: block;
+      overflow: hidden;
+      background: #302a22;
+    }
+    .library-cover img { width: 100%; height: 100%; display: block; object-fit: cover; opacity: .86; }
+    .library-cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 44%, rgba(24,20,15,.54)); }
+    .library-cover-art {
+      display: grid;
+      place-items: center;
+      isolation: isolate;
+    }
+    .library-cover-art::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      opacity: .48;
+      background-image: repeating-linear-gradient(4deg, rgba(255,255,255,.08) 0 1px, transparent 1px 8px);
+    }
+    .library-cover-art::after { background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(29,24,18,.46)); }
+    .cover-moon { background: radial-gradient(circle at 73% 22%, #e8dca7 0 8%, transparent 9%), linear-gradient(145deg, #243943, #7e6b4d); }
+    .cover-rain { background: linear-gradient(145deg, #59747a, #bd9d7b 58%, #4e5962); }
+    .cover-chapel { background: radial-gradient(circle at 50% 15%, #f6d991, transparent 28%), linear-gradient(160deg, #3f3a4d, #8b7251); }
+    .cover-train { background: linear-gradient(150deg, #1f2b32, #705a4a 55%, #c08e55); }
+    .cover-mark {
+      position: relative;
+      z-index: 2;
+      color: rgba(255,247,218,.9);
+      font: 500 22px Georgia, "Songti SC", serif;
+      letter-spacing: .18em;
+      text-shadow: 0 5px 18px rgba(20,16,12,.35);
+    }
+    .library-type {
+      position: absolute;
+      z-index: 2;
+      left: 10px;
+      bottom: 9px;
+      border: 1px solid rgba(255,244,211,.22);
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: #fff3d1;
+      background: rgba(44,39,32,.67);
+      font-size: 9px;
+      letter-spacing: .08em;
+    }
+    .library-copy { display: block; padding: 13px 14px 15px; }
+    .library-copy strong { display: block; margin-bottom: 5px; font: 500 16px Georgia, "Songti SC", serif; }
+    .library-copy small { display: block; color: #776d5e; font-size: 10px; line-height: 1.5; }
+    .library-current-badge {
+      position: absolute;
+      z-index: 3;
+      top: 9px;
+      right: 9px;
+      display: none;
+      border-radius: 999px;
+      padding: 4px 7px;
+      color: #fff5d9;
+      background: rgba(126,97,42,.88);
+      font-size: 9px;
+    }
+    .library-item.is-current .library-current-badge { display: block; }
+    .library-upload-note {
+      margin: 16px 0 0;
+      border-top: 1px solid rgba(99,77,41,.13);
+      padding-top: 14px;
+      color: #766b59;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+    .track-summary {
+      min-width: 220px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+    }
+    .track-navigation {
+      display: inline-flex;
+      align-items: center;
+      align-self: center;
+      gap: 6px;
+      height: 30px;
+    }
+    .track-skip-button {
+      flex: 0 0 30px;
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(91,74,43,.18);
+      border-radius: 50%;
+      padding: 0;
+      background: rgba(255,249,228,.55);
+      cursor: pointer;
+      line-height: 0;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .track-skip-button svg { display: block; width: 14px; height: 14px; }
+    .track-skip-button:hover,
+    .track-skip-button:focus-visible { transform: scale(1.08); border-color: rgba(164,127,52,.62); background: #fff2c9; outline: none; }
+
+    .player {
+      display: grid;
+      grid-template-columns: auto auto minmax(80px,1fr) auto;
+      align-items: center;
+      gap: 13px;
+      margin-top: 13px;
+      padding: 11px 15px;
+      border: 1px solid rgba(93,76,45,.14);
+      border-radius: 18px;
+      background: rgba(250,241,213,.58);
+    }
+    .play-button {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      color: #fff9e8;
+      background: var(--ink);
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease;
+    }
+    .play-button:hover,
+    .play-button:focus-visible { transform: scale(1.06); background: #504a40; outline: 2px solid rgba(180,145,69,.42); outline-offset: 3px; }
+    .play-button svg { width: 18px; height: 18px; }
+    .play-button .pause-icon { display: none; }
+    .play-button.is-playing .play-icon { display: none; }
+    .play-button.is-playing .pause-icon { display: block; }
+    .track-copy strong { display: block; font: 500 13px Georgia, "Songti SC", serif; }
+    .track-copy span { color: var(--muted); font-size: 10px; }
+    .timeline {
+      position: relative;
+      height: 24px;
+      display: flex;
+      align-items: center;
+    }
+    .timeline input { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    .time-readout { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 11px; }
+    .player-restart {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid rgba(61,57,50,.2);
+      border-radius: 999px;
+      padding: 0 10px;
+      color: var(--ink);
+      background: rgba(255,249,228,.58);
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: 10px;
+    }
+    .player-restart:hover,
+    .player-restart:focus-visible {
+      border-color: rgba(180,145,69,.7);
+      background: rgba(250,237,194,.76);
+      outline: none;
+    }
+
+    .discussion {
+      min-width: 0;
+      height: clamp(500px, 69vh, 690px);
+      max-height: calc(100svh - 138px);
+      min-height: 480px;
+      align-self: start;
+      display: flex;
+      flex-direction: column;
+      border-radius: 27px;
+      overflow: hidden;
+      color: var(--panel-text);
+      background: var(--panel);
+      box-shadow: 0 24px 65px rgba(48,39,27,.16);
+    }
+    .discussion-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 22px 22px 16px;
+      border-bottom: 1px solid rgba(255,248,226,.12);
+    }
+    .discussion-head p { margin: 0 0 5px; color: #cbbd97; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }
+    .discussion-head h2 { margin: 0; font: 500 21px Georgia, "Songti SC", serif; }
+    .listening-dot { display: flex; gap: 4px; padding-top: 7px; }
+    .listening-dot i { width: 5px; height: 5px; border-radius: 50%; background: #d5bd79; animation: thinking 1.3s ease-in-out infinite; }
+    .listening-dot i:nth-child(2) { animation-delay: .16s; }
+    .listening-dot i:nth-child(3) { animation-delay: .32s; }
+    .messages {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      overscroll-behavior: contain;
+      padding: 7px 20px 28px;
+      scroll-padding-bottom: 28px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(234,215,157,.3) transparent;
+    }
+    .message {
+      display: grid;
+      grid-template-columns: 31px 1fr;
+      gap: 10px;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(255,248,226,.09);
+      animation: message-in .45s ease both;
+    }
+    .message img { width: 31px; height: 36px; object-fit: contain; }
+    .message-meta { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+    .message-meta strong { color: #f6e7ba; font-size: 12px; font-weight: 500; }
+    .message-meta time { color: #9e9787; font-size: 9px; }
+    .message p { margin: 0; color: #e8e0cd; font-size: 12.5px; line-height: 1.72; text-wrap: pretty; }
+    .message.is-user {
+      grid-template-columns: 1fr;
+      margin: 8px 0;
+      padding: 0;
+      border-bottom: 0;
+    }
+    .message.is-user > div {
+      justify-self: end;
+      max-width: 88%;
+      border-radius: 15px 15px 4px 15px;
+      padding: 10px 12px;
+      color: #3d372e;
+      background: #ead38f;
+    }
+    .message.is-user .message-meta { margin-bottom: 3px; }
+    .message.is-user .message-meta strong,
+    .message.is-user .message-meta time,
+    .message.is-user p { color: #3d372e; }
+    .message.is-loading { opacity: .82; }
+    .message.is-loading p { color: #b9af99; }
+    .message p.is-collapsed {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+    }
+    .message p:not(.is-collapsed) { display: block; overflow: visible; }
+    .message-actions { display: flex; flex-wrap: wrap; gap: 7px 10px; align-items: center; min-width: 0; }
+    .message-toggle {
+      margin-top: 7px;
+      border: 0;
+      padding: 0;
+      color: #d5bd79;
+      background: transparent;
+      cursor: pointer;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    .evidence {
+      margin-top: 8px;
+      border: 0;
+      padding: 0;
+      color: #c7ad67;
+      background: transparent;
+      cursor: pointer;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    .feedback-menu { position: relative; display: flex; flex-direction: column; align-items: flex-start; width: auto; min-width: 0; }
+    .feedback-menu.is-open { flex: 0 0 100%; width: 100%; }
+    .feedback-trigger { border:0; padding:0; color:#a98a45; background:transparent; font-size:10px; cursor:pointer; white-space:nowrap; }
+    .feedback-options {
+      display: none;
+      position: static;
+      width: min(100%, 270px);
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 6px;
+      margin-top: 8px;
+      border: 1px solid rgba(255,244,211,.14);
+      border-radius: 12px;
+      padding: 8px;
+      background: #37332d;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .feedback-menu.is-open .feedback-options { display:grid; }
+    .feedback-option {
+      border: 1px solid rgba(255,244,211,.16);
+      border-radius: 8px;
+      padding: 7px 8px;
+      color: #f4ead0;
+      background: rgba(255,255,255,.04);
+      font-size: 10px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .feedback-option:hover,
+    .feedback-option:focus-visible { border-color: #d7bd76; background: rgba(215,189,118,.12); outline: none; }
+    .feedback-menu.is-sent .feedback-trigger { color: #d7bd76; }
+    .feedback-menu.is-sent .feedback-options { display: none; }
+    .discussion-actions {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 5px 15px 14px;
+    }
+    .continue-talk {
+      margin: 0;
+      border: 1px solid rgba(234,215,157,.26);
+      border-radius: 999px;
+      padding: 9px 15px;
+      color: #f4e6bd;
+      background: rgba(255,255,255,.04);
+      cursor: pointer;
+      font-size: 11px;
+      white-space: nowrap;
+      transition: background .2s ease, border-color .2s ease;
+    }
+    .continue-talk:hover,
+    .continue-talk:focus-visible { background: rgba(234,215,157,.12); border-color: rgba(234,215,157,.55); outline: none; }
+    .enter-fourth-scene {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid #d7bd76;
+      border-radius: 999px;
+      padding: 9px 15px;
+      color: #39352f;
+      background: #ead38f;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .enter-fourth-scene span { flex: 0 0 auto; }
+    .enter-fourth-scene:hover,
+    .enter-fourth-scene:focus-visible {
+      background: #f2dda0;
+      box-shadow: 0 7px 18px rgba(0,0,0,.18);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .question-box { padding: 14px 15px 15px; background: rgba(29,27,24,.25); }
+    .quick-prompts { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; margin-bottom: 10px; }
+    .quick-prompts::-webkit-scrollbar { display: none; }
+    .prompt-chip {
+      min-width: 0;
+      border: 1px solid rgba(234,215,157,.2);
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: #d8cfb9;
+      background: transparent;
+      cursor: pointer;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    .prompt-chip:last-child { grid-column: 1 / -1; justify-self: start; }
+    .prompt-chip:hover { border-color: rgba(234,215,157,.46); color: #fff2cd; }
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255,248,226,.15);
+      border-radius: 16px;
+      padding: 5px 5px 5px 12px;
+      background: rgba(255,255,255,.055);
+    }
+    .input-row input {
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      color: #fff6df;
+      background: transparent;
+      font-size: 12px;
+    }
+    .input-row input::placeholder { color: #aaa290; }
+    .send-button {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 12px;
+      color: #3d3932;
+      background: var(--accent-light);
+      cursor: pointer;
+    }
+    .send-button svg { width: 17px; height: 17px; }
+
+    .source-note {
+      width: min(1500px,100%);
+      margin: 10px auto 0;
+      color: #817766;
+      font-size: 9px;
+      text-align: left;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 50;
+      left: 50%;
+      bottom: 22px;
+      transform: translate(-50%,16px);
+      border-radius: 999px;
+      padding: 10px 16px;
+      color: #fff5dc;
+      background: rgba(61,58,52,.95);
+      box-shadow: 0 12px 32px rgba(44,36,25,.18);
+      font-size: 12px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .25s ease, transform .25s ease, visibility .25s;
+    }
+    .toast.is-visible { opacity: 1; visibility: visible; transform: translate(-50%,0); }
+
+    @keyframes companion-float { 0%,100% { transform: translateY(0) rotate(-.5deg); } 50% { transform: translateY(-7px) rotate(.5deg); } }
+    @keyframes thinking { 0%,65%,100% { opacity: .25; transform: translateY(0); } 32% { opacity: 1; transform: translateY(-3px); } }
+    @keyframes message-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes beat-light {
+      0% { opacity: .48; filter: brightness(.9); box-shadow: 0 0 7px rgba(180,145,69,.22); }
+      35% { opacity: 1; filter: brightness(1.28); box-shadow: 0 0 28px rgba(215,174,72,.82); }
+      100% { opacity: .78; filter: brightness(1); box-shadow: 0 0 18px rgba(180,145,69,.48); }
+    }
+    @keyframes sound-breathe { 0%,100% { transform: scale(.92); opacity: .32; } 50% { transform: scale(1.08); opacity: .76; } }
+    @keyframes particle-drift { 0%,100% { transform: translate3d(0,5px,0); opacity: .25; } 50% { transform: translate3d(8px,-13px,0); opacity: .82; } }
+
+    @media (max-width: 980px) {
+      .page { overflow: auto; }
+      .topbar { grid-template-columns: 1fr auto; }
+      .piece-heading { grid-column: 1 / -1; grid-row: 2; }
+      .top-actions { grid-column: 2; grid-row: 1; }
+      .theatre { grid-template-columns: 1fr; }
+      .discussion { height: min(620px, 72svh); max-height: none; min-height: 500px; }
+      .score-card { min-height: 570px; }
+    }
+
+    @media (max-width: 620px) {
+      .page { padding-inline: 12px; }
+      .back-link > span:last-child { display: none; }
+      .mode-button { padding-inline: 10px; }
+      .score-card { border-radius: 22px; }
+      .score-viewport { inset-bottom: 120px; }
+      .soundscape-viewport,
+      .creation-notes { inset: 65px 10px 120px; }
+      .performance-viewport { inset: 65px 10px 160px; }
+      .listening-guide-panel { left: auto; right: auto; bottom: auto; width: 100%; padding: 14px; }
+      .listening-lenses { left: 10px; right: 10px; overflow-x: auto; }
+      .listening-lens { flex: 0 0 auto; }
+      .creation-notes { grid-template-columns: 1fr; padding: 14px; }
+      .performance-video { object-fit: contain; }
+      .cue-overlay { width: 82%; bottom: 39px; }
+      .companions { width: 88%; gap: 18px; }
+      .companion { width: 76px; height: 91px; }
+      .speech-bubble { width: min(190px, calc(100vw - 28px)); bottom: 91px; font-size: 10px; }
+      .emotion-map-zoom img { transform: scale(1); }
+      .emotion-map-zoom:hover img { transform: scale(1.015); }
+      .emotion-map-zoom-hint { right: 10px; bottom: 10px; }
+      .map-lightbox { padding: 12px; }
+      .media-library { padding: 12px; }
+      .media-library-panel { padding: 18px; }
+      .library-carousel { grid-template-columns: 34px minmax(0,1fr) 34px; gap: 5px; }
+      .library-arrow { width: 34px; height: 34px; }
+      .library-item { flex-basis: 100%; }
+      .library-cover { height: 104px; }
+      .player { grid-template-columns: auto auto minmax(70px,1fr) auto auto; gap: 8px; }
+      .player-restart span { display: none; }
+      .track-summary { min-width: auto; }
+      .track-copy { display: none; }
+      .source-note { line-height: 1.5; }
+    }
+
+    /* 第三幕精简布局：一次只突出一个核心任务 */
+    .page {
+      height: 100svh;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 8px clamp(14px, 3vw, 34px) 8px;
+    }
+    .topbar,
+    .theatre,
+    .source-note { width: min(1320px, 100%); }
+    .round-button {
+      width: auto;
+      min-width: 44px;
+      height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border-radius: 999px;
+      padding: 0 14px;
+    }
+    .round-button-label { font-size: 11px; white-space: nowrap; }
+    .mode-switch[hidden] { display: none !important; }
+    .mobile-view-switch { display: none; }
+    .theatre {
+      grid-template-columns: minmax(0, 1.48fr) minmax(320px, .72fr);
+      gap: 18px;
+      flex: 0 1 720px;
+      width: min(1320px, 100%);
+      height: min(720px, calc(100svh - 72px));
+      min-height: 0;
+      margin-top: 7px;
+      overflow: hidden;
+      align-items: stretch;
+    }
+    .score-column {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto auto;
+    }
+    .score-card {
+      height: auto;
+      min-height: 0;
+      border-radius: 24px;
+    }
+    .score-caption { top: 17px; left: 20px; right: 20px; }
+    .score-caption > div > span { display: none; }
+    .performance-viewport {
+      top: 50px;
+      right: 14px;
+      bottom: auto;
+      left: 14px;
+      height: auto;
+      aspect-ratio: 2.42 / 1;
+      border-radius: 18px;
+    }
+    .performance-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover !important;
+      object-position: var(--video-crop-position, center 50%);
+      transform: none;
+    }
+    .speech-bubble { display: block; }
+    .companion:not(.has-cue-comment) .speech-bubble,
+    .companion:not(.is-speaking) .speech-bubble {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .companion.has-cue-comment.is-speaking .speech-bubble {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0) scale(1);
+    }
+    .companions {
+      bottom: 6px;
+      height: 88px;
+      gap: clamp(42px, 7vw, 104px);
+    }
+    .companion {
+      width: 100px;
+      height: 86px;
+      animation: none;
+    }
+    .companion img { width: 74px; height: 78px; }
+    .companion-name { bottom: 0; padding: 5px 11px; font-size: 11px; }
+    .speech-bubble {
+      bottom: 145px;
+      width: min(286px, calc(100vw - 38px));
+      min-height: 0;
+      border-radius: 16px;
+      padding: 10px 13px;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+    .player {
+      min-height: 50px;
+      margin-top: 6px;
+      border-radius: 18px 18px 0 0;
+      padding: 5px 11px;
+      box-shadow: 0 12px 32px rgba(75,55,23,.07);
+    }
+    .listening-guide-panel {
+      position: relative;
+      left: auto;
+      right: auto;
+      bottom: auto;
+      width: 100%;
+      margin-top: -1px;
+      border-radius: 0 0 18px 18px;
+      padding: 6px 13px 7px 20px;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(191,151,61,.13), transparent 28%),
+        rgba(250,241,213,.84);
+      border-color: rgba(93,76,45,.14);
+      box-shadow: 0 12px 32px rgba(75,55,23,.07);
+      backdrop-filter: none;
+    }
+    .listening-guide-panel::before {
+      content: "";
+      position: absolute;
+      top: 7px;
+      bottom: 7px;
+      left: 9px;
+      width: 3px;
+      border-radius: 999px;
+      background: #b99542;
+    }
+    .listening-guide-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 2px 14px;
+      align-items: center;
+    }
+    .listening-guide-eyebrow,
+    .listening-guide-panel h3,
+    .listening-guide-hint { grid-column: 1; }
+    .listening-guide-eyebrow {
+      margin: 0;
+      color: #8b7135;
+      font-size: 9px;
+    }
+    .listening-guide-panel h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 13px;
+    }
+    .listening-guide-hint {
+      margin: 1px 0 0;
+      color: #6f6658;
+      font-size: 8.5px;
+      line-height: 1.35;
+    }
+    .listening-focus-list { display: none; }
+    .listening-guide-action {
+      grid-column: 2;
+      grid-row: 1 / 4;
+      min-height: 34px;
+      margin: 0;
+      color: var(--ink);
+      background: rgba(255,249,228,.72);
+      border-color: rgba(93,76,45,.2);
+    }
+    .cue-perspective-strip {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-color: rgba(93,76,45,.12);
+    }
+    .cue-perspective-heading {
+      margin-bottom: 5px;
+      color: #8b7135;
+      font-size: 8px;
+    }
+    .cue-perspective-list { gap: 6px; }
+    .cue-perspective-card {
+      padding: 6px 7px;
+      border-color: rgba(93,76,45,.14);
+      color: var(--ink);
+      background: rgba(255,249,228,.52);
+    }
+    .cue-perspective-card:hover,
+    .cue-perspective-card:focus-visible,
+    .cue-perspective-card.is-selected {
+      border-color: rgba(166,126,42,.42);
+      background: rgba(191,151,61,.13);
+    }
+    .cue-perspective-card strong { color: #725b29; font-size: 8.5px; }
+    .cue-perspective-card span { color: #625a4f; font-size: 8px; line-height: 1.35; }
+    .discussion {
+      height: auto;
+      min-height: 0;
+      max-height: none;
+      align-self: stretch;
+      border-radius: 24px;
+      box-shadow: 0 18px 45px rgba(48,39,27,.14);
+    }
+    .discussion-head { padding: 14px 17px 11px; }
+    .discussion-head p { margin-bottom: 3px; }
+    .discussion-head h2 { font-size: 19px; }
+    .discussion-empty {
+      flex: 0 0 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 20px 18px 14px;
+      color: #e9dfc7;
+    }
+    .discussion:not(:has(.message)) {
+      height: auto;
+      max-height: none;
+      align-self: start;
+    }
+    .discussion:not(:has(.message)) .question-box {
+      margin-top: 0;
+    }
+    .empty-question-paths {
+      border-top: 1px solid rgba(255,244,211,.1);
+      padding-top: 10px;
+    }
+    .empty-question-paths > span {
+      display: block;
+      margin-bottom: 7px;
+      color: #c8b77e;
+      font-size: 9px;
+      letter-spacing: .08em;
+    }
+    .empty-question-paths div {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .empty-question-paths em {
+      border: 1px solid rgba(255,244,211,.12);
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: #d8cfba;
+      background: rgba(255,255,255,.025);
+      font-size: 9px;
+      font-style: normal;
+      white-space: nowrap;
+    }
+    .discussion:has(.message) .discussion-empty { display: none; }
+    .discussion-empty-intro { max-width: 270px; }
+    .discussion-empty-intro strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #fff2cc;
+      font: 500 16px var(--font-display);
+    }
+    .discussion-empty-intro p {
+      margin: 0;
+      color: #bdb39e;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .angle-preview-list { display: grid; gap: 6px; }
+    .angle-preview {
+      display: grid;
+      grid-template-columns: 35px minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(255,244,211,.11);
+      border-radius: 14px;
+      padding: 7px 9px;
+      background: rgba(255,255,255,.035);
+    }
+    .angle-preview img { width: 35px; height: 40px; object-fit: contain; }
+    .angle-preview strong { display: block; color: #f4e4b5; font-size: 11px; }
+    .angle-preview span { display: block; margin-top: 2px; color: #aaa18e; font-size: 9px; }
+    .discussion-empty-hint {
+      margin: 2px 0 0;
+      color: #c8b77e;
+      font-size: 10px;
+    }
+    @media (min-width: 981px) {
+      .discussion:not(:has(.message)) {
+        min-height: clamp(560px, 62vh, 620px);
+      }
+      .discussion:not(:has(.message)) .discussion-empty {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+    .messages { padding: 7px 17px 14px; }
+    .messages:empty { display: none; }
+    .discussion-actions { display: none; }
+    .discussion:has(.message:not(.is-user):not(.is-loading)) .discussion-actions { display: flex; }
+    .question-box { padding: 9px 12px 11px; }
+    .quick-prompts {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      margin-bottom: 7px;
+      scrollbar-width: none;
+    }
+    .prompt-chip {
+      flex: 0 0 auto;
+      min-height: 31px;
+      padding-inline: 12px;
+    }
+    .prompt-chip:last-child { grid-column: auto; justify-self: auto; }
+    .source-note { display: none; }
+
+    @media (min-width: 981px) {
+      .score-column {
+        container-type: inline-size;
+        grid-template-rows: auto auto auto;
+        align-content: start;
+      }
+      .score-card {
+        height: calc(41.322cqw + 148px);
+      }
+      .companions {
+        top: calc(41.322cqw + 52px);
+        bottom: auto;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .topbar { grid-template-columns: 1fr auto; }
+      .mobile-view-switch {
+        position: sticky;
+        z-index: 12;
+        top: 8px;
+        width: min(420px, 100%);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        margin: 12px auto 0;
+        border: 1px solid rgba(61,57,50,.16);
+        border-radius: 999px;
+        padding: 4px;
+        background: rgba(250,242,216,.94);
+        box-shadow: 0 8px 24px rgba(75,55,23,.08);
+        backdrop-filter: blur(12px);
+      }
+      .mobile-view-button {
+        min-height: 40px;
+        border: 0;
+        border-radius: 999px;
+        color: #6f6658;
+        background: transparent;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .mobile-view-button[aria-pressed="true"] {
+        color: #fff8e7;
+        background: var(--ink);
+      }
+      .theatre {
+        display: block;
+        flex: 1;
+        width: 100%;
+        height: auto;
+        margin-top: 8px;
+      }
+      .theatre[data-mobile-view="stage"] .discussion { display: none; }
+      .theatre[data-mobile-view="talk"] .score-column { display: none; }
+      .discussion {
+        height: 100%;
+        min-height: 0;
+      }
+      .score-column { height: 100%; }
+      .score-card { min-height: 0; }
+    }
+
+    @media (max-width: 620px) {
+      .page { padding: 12px; }
+      .topbar { grid-template-columns: auto minmax(0,1fr) auto; gap: 8px; }
+      .piece-heading { grid-column: 2; grid-row: 1; min-width: 0; }
+      .piece-heading p { display: none; }
+      .piece-heading h1 { overflow: hidden; font-size: 18px; text-overflow: ellipsis; white-space: nowrap; }
+      .piece-heading span { overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+      .top-actions { grid-column: 3; grid-row: 1; }
+      .round-button { width: 44px; padding: 0; }
+      .round-button-label { display: none; }
+      .score-card { min-height: 0; }
+      .score-caption { top: 13px; left: 14px; right: 14px; }
+      .score-caption strong { font-size: 13px; }
+      .live-status { font-size: 9px; }
+      .performance-viewport { inset: 48px 9px 102px; }
+      .performance-video { transform: none; }
+      .companions { bottom: 4px; height: 94px; gap: 17px; }
+      .companion { width: 84px; height: 90px; }
+      .companion img { width: 61px; height: 68px; }
+      .companion-name { padding: 4px 8px; font-size: 9px; }
+      .speech-bubble { bottom: 126px; width: min(250px, calc(100vw - 28px)); font-size: 10px; }
+      .player { grid-template-columns: auto auto minmax(70px,1fr) auto; gap: 7px; padding: 9px 10px; }
+      .track-copy,
+      .player-restart { display: none; }
+      .time-readout { font-size: 9px; }
+      .listening-guide-panel { padding: 10px 11px 12px; }
+      .listening-guide-content { gap: 2px 8px; }
+      .listening-guide-panel h3 { font-size: 14px; }
+      .listening-guide-hint {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        font-size: 9px;
+      }
+      .listening-guide-action { min-height: 38px; padding: 0 10px; font-size: 9px; }
+      .cue-perspective-list {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x proximity;
+      }
+      .cue-perspective-card {
+        flex: 0 0 min(76vw, 240px);
+        scroll-snap-align: start;
+      }
+      .discussion { height: 100%; min-height: 0; }
+      .discussion-head { padding: 16px 16px 12px; }
+      .discussion-head h2 { font-size: 18px; }
+      .discussion-empty { padding: 20px 16px; }
+      .messages { padding-inline: 16px; }
+      .source-note { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <a class="back-link" href="companions.html">
+        <span class="back-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M15 18l-6-6 6-6"/></svg>
+        </span>
+        <span>重新选择陪听者</span>
+      </a>
+
+      <div class="piece-heading">
+        <p>第三幕 · 共听剧场</p>
+        <h1 id="pieceTitle">River Flows In You</h1>
+        <span id="pieceMeta">Yiruma · Piano Cover · 03:29</span>
+      </div>
+
+      <div class="top-actions">
+        <button class="round-button" id="libraryButton" type="button" aria-label="打开音乐库" title="音乐库">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 5h10M5 9h10M5 13h7"/><path d="M17 12v6.5a2.5 2.5 0 1 1-2-2.45V12l4-1v5.5a2.5 2.5 0 1 1-2-2.45"/></svg>
+          <span class="round-button-label">换一首</span>
+        </button>
+          <div class="mode-switch" aria-label="主画面模式" hidden>
+          <button class="mode-button" type="button" data-mode="performance" aria-pressed="true">演奏现场</button>
+          <button class="mode-button" id="listeningGuideButton" type="button" data-mode="listening-guide" aria-pressed="false">这一刻听什么</button>
+        </div>
+      </div>
+    </header>
+
+    <nav class="mobile-view-switch" aria-label="第三幕视图">
+      <button class="mobile-view-button" type="button" data-mobile-view="stage" aria-pressed="true">边听边看</button>
+      <button class="mobile-view-button" type="button" data-mobile-view="talk" aria-pressed="false">问三种视角</button>
+    </nav>
+
+    <section class="theatre" data-mobile-view="stage">
+      <div class="score-column">
+        <article class="score-card">
+          <div class="score-caption">
+            <div><strong id="scoreCaptionTitle">跟着旋律的回流，听见它怎样一次次靠近</strong><span id="scoreCaptionMeta">8 个聆听节点 · 旋律、结构与张力三种视角</span></div>
+            <span class="live-status" id="liveStatus">等待开始</span>
+          </div>
+
+          <div class="performance-viewport" id="performanceViewport" aria-label="River Flows In You 钢琴演奏视频">
+            <video class="performance-video" id="performanceVideo" preload="metadata" playsinline poster="assets/visual/library/river-flows-in-you-performance.jpg" src="assets/video/library/river-flows-in-you-performance.mp4"></video>
+            <span class="performance-credit" id="performanceCredit">RIVER FLOWS IN YOU · PIANO PERFORMANCE</span>
+            <div class="cue-overlay" id="cueOverlay" role="status">
+              <span id="cueOverlayLabel">00:09 · 起步</span>
+              <strong id="cueOverlayTitle">先抓住反复出现的手势</strong>
+              <p id="cueOverlayHint">先别追每个音，只听右手这一小串声音怎样一次次回来。</p>
+            </div>
+            <div class="cue-timeline" id="cueTimeline" role="slider" tabindex="0" aria-label="音乐播放进度" aria-valuemin="0" aria-valuemax="209" aria-valuenow="0" hidden>
+              <span class="cue-timeline-progress"></span>
+            </div>
+          </div>
+
+          <div class="companions" id="companions" aria-label="陪听音乐家"></div>
+        </article>
+
+        <div class="player">
+          <button class="play-button" id="playButton" type="button" aria-label="播放音乐">
+            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"/></svg>
+            <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" hidden><path d="M7 5h4v14H7zM14 5h4v14h-4z"/></svg>
+          </button>
+          <div class="track-summary">
+            <div class="track-copy"><strong id="trackTitle">River Flows In You</strong><span id="trackMeta">Yiruma · 钢琴演奏视频</span></div>
+            <div class="track-navigation" aria-label="切换曲目">
+              <button class="track-skip-button" id="previousTrackButton" type="button" aria-label="上一首">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M6 5h2v14H6zM18 6v12l-9-6 9-6Z"/></svg>
+              </button>
+              <button class="track-skip-button" id="nextTrackButton" type="button" aria-label="下一首">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M16 5h2v14h-2zM6 6v12l9-6-9-6Z"/></svg>
+              </button>
+            </div>
+          </div>
+          <label class="timeline"><span class="sr-only"></span><input id="seekBar" type="range" min="0" max="232.87" step="0.05" value="0" aria-label="音乐播放进度"></label>
+          <button class="player-restart" id="restartButton" type="button" aria-label="从头播放" title="从头播放">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4v6h6"/><path d="M5.5 9A8 8 0 1 1 6 16.5"/></svg>
+            <span>重来一遍</span>
+          </button>
+          <output class="time-readout" id="timeReadout">00:00 / 03:29</output>
+        </div>
+        <div class="listening-guide-panel is-visible" id="listeningGuidePanel" aria-live="polite">
+          <div class="listening-guide-content">
+            <p class="listening-guide-eyebrow" id="listeningGuideTime">00:00 · 自由聆听</p>
+            <h3 id="listeningGuideTitle">先找到一处让你停下来的声音</h3>
+            <p class="listening-guide-hint" id="listeningGuideHint">不用急着判断好不好听，先选择旋律、节奏或音色中的一个，跟着它听十秒。</p>
+            <div class="listening-focus-list" id="listeningFocusList" aria-label="此刻的听觉重点">
+              <span>旋律</span><span>节奏</span><span>音色</span>
+            </div>
+            <button class="listening-guide-action" id="replayCueButton" type="button">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4v6h6"/><path d="M5.5 9A8 8 0 1 1 6 16.5"/></svg>
+              重听这一小段
+            </button>
+          </div>
+          <section class="cue-perspective-strip" id="cuePerspectiveStrip" aria-label="当前音乐节点的三种人物点评" hidden>
+            <p class="cue-perspective-heading">节点点评 · 点击可指定回答者</p>
+            <div class="cue-perspective-list" id="cuePerspectiveList"></div>
+          </section>
+        </div>
+      </div>
+
+      <aside class="discussion">
+        <header class="discussion-head">
+          <div><p>Three Listening Angles</p><h2>问一个你真正想知道的问题</h2></div>
+          <span class="listening-dot" aria-label="三种聆听视角正在分析"><i></i><i></i><i></i></span>
+        </header>
+        <div class="discussion-empty" id="discussionEmptyState">
+          <div class="discussion-empty-intro">
+            <strong>先听十秒，再问一句</strong>
+            <p>不需要懂乐理。你可以问刚才哪里变了、为什么有感觉，或者指定一位视角回答。</p>
+          </div>
+          <div class="angle-preview-list" aria-label="三种聆听视角说明">
+            <div class="angle-preview"><img src="musicians/cartoons/web-cutouts/08-mozart.png" alt=""><div><strong>莫扎特视角</strong><span>听旋律怎样说话、停顿和转身</span></div></div>
+            <div class="angle-preview"><img src="musicians/cartoons/web-cutouts/07-bach.png" alt=""><div><strong>巴赫视角</strong><span>听上下两层声音怎样互相托住</span></div></div>
+            <div class="angle-preview"><img src="musicians/cartoons/web-cutouts/09-beethoven.png" alt=""><div><strong>贝多芬视角</strong><span>听轻重、推进和情绪力量怎样变化</span></div></div>
+          </div>
+          <div class="empty-question-paths" aria-label="可以开始提问的方向">
+            <span>可以从一个变化开始</span>
+            <div><em>哪里变了</em><em>为什么有感觉</em><em>如果换一种写法</em></div>
+          </div>
+          <p class="discussion-empty-hint">点击左侧人物头像，可以指定由谁回答。</p>
+        </div>
+        <div class="messages" id="messages" aria-live="polite"></div>
+        <div class="discussion-actions">
+          <button class="continue-talk" id="continueTalk" type="button">听听他们互相回应</button>
+          <a class="enter-fourth-scene" href="fourth-scene-mockup.html">完成聆听 <span aria-hidden="true">→</span></a>
+        </div>
+        <form class="question-box" id="questionForm">
+          <div class="quick-prompts">
+            <button class="prompt-chip" type="button" data-answer-mode="auto">这里发生了什么？</button>
+            <button class="prompt-chip" type="button" data-answer-mode="auto">能说得更简单吗？</button>
+          </div>
+          <div class="input-row">
+            <input id="questionInput" type="text" maxlength="120" aria-label="向音乐家提问" placeholder="问问他们，这一段让你想到什么？">
+            <button class="send-button" type="submit" aria-label="发送问题">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m5 12 14-7-4 14-3-6-7-1Z"/><path d="m12 13 7-8"/></svg>
+            </button>
+          </div>
+        </form>
+      </aside>
+    </section>
+
+    <p class="source-note" id="sourceNote">节点依据音量、音色、节奏密度与段落变化检测后人工整理。三种视角用于帮助聆听，不代表历史人物本人评价现代作品。</p>
+    <div class="toast" id="toast" role="status"></div>
+    <div class="media-library" id="mediaLibrary" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="mediaLibraryTitle">
+      <section class="media-library-panel">
+        <header class="media-library-head">
+          <div>
+            <p>Listening Library</p>
+            <h2 id="mediaLibraryTitle">选择今晚共听的音乐</h2>
+            <span>视频与纯音乐都可以进入同一个陪听空间。</span>
+          </div>
+          <button class="library-close" id="libraryClose" type="button" aria-label="关闭音乐库">×</button>
+        </header>
+        <div class="library-carousel">
+          <button class="library-arrow" id="libraryPrevious" type="button" aria-label="向左浏览曲库">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <div class="library-grid" id="libraryGrid">
+            <button class="library-item is-current" type="button" data-track-id="river-flows-in-you">
+              <span class="library-current-badge">正在播放</span>
+              <span class="library-cover"><img src="assets/visual/library/river-flows-in-you-performance.jpg" alt="River Flows In You 钢琴演奏视频封面"><span class="library-type">钢琴演奏 · 03:29</span></span>
+              <span class="library-copy"><strong>River Flows In You</strong><small>Yiruma · Piano Cover<br>8 个小白聆听节点</small></span>
+            </button>
+            <button class="library-item" type="button" data-track-id="sonnet-piano">
+              <span class="library-current-badge">正在播放</span>
+              <span class="library-cover"><img src="assets/visual/library/sonnet-performance.jpg" alt="Sonnet 钢琴演奏视频封面"><span class="library-type">钢琴演奏 · 03:38</span></span>
+              <span class="library-copy"><strong>Sonnet</strong><small>钢琴独奏演奏视频<br>9 个小白聆听节点</small></span>
+            </button>
+            <button class="library-item" type="button" data-track-id="city-of-stars">
+              <span class="library-current-badge">正在播放</span>
+              <span class="library-cover"><img src="assets/visual/library/city-of-stars-performance.jpg" alt="City of Stars 钢琴演奏视频封面"><span class="library-type">电影音乐 · 03:49</span></span>
+              <span class="library-copy"><strong>City of Stars</strong><small>La La Land OST<br>10 个小白聆听节点</small></span>
+            </button>
+          </div>
+          <button class="library-arrow" id="libraryNext" type="button" aria-label="向右浏览曲库">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 6 6 6-6 6"/></svg>
+          </button>
+        </div>
+        <p class="library-upload-note">从曲库选择后会直接回到共听剧场，并保留当前选择的陪听者。</p>
+      </section>
+    </div>
+  </main>
+
+  <script type="text/plain" id="legacyListeningScript">
+    const musicianCatalog = {
+      'guan-pinghu': { name: '管平湖', image: 'musicians/cartoons/web-cutouts/01-guan-pinghu-v6.png?v=20260828-9', line: '这一声落下以后，真正要听的是它怎样慢慢消失。' },
+      'liu-dehai': { name: '刘德海', image: 'musicians/cartoons/web-cutouts/02-liu-dehai-v6.png?v=20260828-9', line: '每一颗声音都要站稳，连起来才会成为动作。' },
+      'feng-zicun': { name: '冯子存', image: 'musicians/cartoons/web-cutouts/03-feng-zicun-v4.png?v=20260828-5', line: '这一口气转过去，旋律就从说话变成了起舞。' },
+      abing: { name: '阿炳', image: 'musicians/cartoons/web-cutouts/04-abing.png', line: '我听见的不是悲，是一个人在夜里走。' },
+      'xian-xinghai': { name: '冼星海', image: 'musicians/cartoons/web-cutouts/05-xian-xinghai.png', line: '弱音里也藏着向前的力量。' },
+      chopin: { name: '肖邦', image: 'musicians/cartoons/web-cutouts/06-chopin-v4.png?v=20260828-5', line: '旋律需要呼吸，停顿有时比下一个音更接近心事。' },
+      bach: { name: '结构与声部 · 灵感来自巴赫', image: 'musicians/cartoons/web-cutouts/07-bach.png', line: '先听低音怎样托住上方，层次会慢慢显出来。' },
+      mozart: { name: '旋律与戏剧 · 灵感来自莫扎特', image: 'musicians/cartoons/web-cutouts/08-mozart.png', line: '把旋律听成一次提问和回应，停顿也会有动作。' },
+      beethoven: { name: '动机与张力 · 灵感来自贝多芬', image: 'musicians/cartoons/web-cutouts/09-beethoven.png', line: '追踪那个短小声音怎样重复，变化就有了方向。' },
+      'scott-joplin': { name: '斯科特·乔普林', image: 'musicians/cartoons/web-cutouts/10-scott-joplin.png', line: '三拍子没有催促你，它只让身体轻轻摇摆。' }
+    };
+
+    let selectedIds = [];
+    try { selectedIds = JSON.parse(localStorage.getItem('tuningCompanions') || '[]'); } catch {}
+    selectedIds = selectedIds.filter((id) => musicianCatalog[id]).slice(0, 3);
+    if (selectedIds.length < 3) selectedIds = ['guan-pinghu', 'bach', 'beethoven'];
+
+    const audio = document.getElementById('audio');
+    const playButton = document.getElementById('playButton');
+    const seekBar = document.getElementById('seekBar');
+    const timeReadout = document.getElementById('timeReadout');
+    const soundscapeViewport = document.getElementById('soundscapeViewport');
+    const creationNotes = document.getElementById('creationNotes');
+    const soundMomentEyebrow = document.getElementById('soundMomentEyebrow');
+    const soundMomentTitle = document.getElementById('soundMomentTitle');
+    const soundMomentCopy = document.getElementById('soundMomentCopy');
+    const listeningLenses = [...document.querySelectorAll('.listening-lens')];
+    const composerNote = document.getElementById('composerNote');
+    const liveStatus = document.getElementById('liveStatus');
+    const companions = document.getElementById('companions');
+    const messages = document.getElementById('messages');
+    const questionForm = document.getElementById('questionForm');
+    const questionInput = document.getElementById('questionInput');
+    const continueTalk = document.getElementById('continueTalk');
+    const restartButton = document.getElementById('restartButton');
+    const toast = document.getElementById('toast');
+    const playIcon = playButton.querySelector('.play-icon');
+    const pauseIcon = playButton.querySelector('.pause-icon');
+
+    const measureWidth = 210;
+    const scoreStart = 140;
+    const beatDuration = 1.28;
+    const measureDuration = beatDuration * 3;
+    const totalMeasures = 47;
+    const beatsPerMeasure = 3;
+    const totalBeats = totalMeasures * beatsPerMeasure;
+    const noteGroups = [];
+    let activeSpeaker = 0;
+    let messageIndex = 0;
+    let animationFrame;
+    let toastTimer;
+    let activeChapter = -1;
+
+    const scoreSystems = [
+      { page: 1, start: 1, end: 7, y: 132 },
+      { page: 1, start: 8, end: 15, y: 462 },
+      { page: 1, start: 16, end: 23, y: 785 },
+      { page: 1, start: 24, end: 31, y: 1121 },
+      { page: 1, start: 32, end: 39, y: 1458 },
+      { page: 2, start: 40, end: 47, y: 22 }
+    ];
+
+    const listeningCues = [
+      { time: 0, text: '1888 年写成。速度标记是“缓慢而哀伤”，先听低音与和弦如何搭出稳定的脚步。' },
+      { time: 34, text: '旋律比伴奏更晚出现，像一个人走进已经存在的房间。留白也是作品的一部分。' },
+      { time: 76, text: '相似的低音反复返回，但上方和声悄悄改变。熟悉感因此逐渐偏移。' },
+      { time: 118, text: '作品没有追求浪漫派式的大高潮，力量来自克制、重复和微小色彩变化。' },
+      { time: 160, text: '当旋律再次回来，可以比较它与第一次出现时的重量：音符相似，听者已经不同。' },
+      { time: 193, text: '结尾依然保持节制，没有替听者把情绪说尽。最后的安静由你来完成。' }
+    ];
+
+    const soundChapters = [
+      { start: 0, eyebrow: '第一幕 · 脚步出现', title: '一个人在夜里慢慢走', copy: '先不判断悲伤或快乐，只跟着低音感受稳定而缓慢的步伐。', lens: 0 },
+      { start: 34, eyebrow: '第二幕 · 房间有了呼吸', title: '旋律从安静中走进来', copy: '和弦像门缓缓打开，旋律没有抢先说话，而是等空间准备好。', lens: 2 },
+      { start: 76, eyebrow: '第三幕 · 熟悉开始偏移', title: '同一条路，颜色悄悄改变', copy: '脚步仍在重复，但上方的光线不同了。注意那些很小、却改变感受的变化。', lens: 1 },
+      { start: 118, eyebrow: '第四幕 · 克制成为力量', title: '没有高潮，也能被击中', copy: '音乐不急着证明自己。越是忍住，留给你的情绪空间就越大。', lens: 1 },
+      { start: 160, eyebrow: '第五幕 · 再次回望', title: '旋律回来，你已经不同', copy: '相似的声音再次出现时，比较第一次听见它与现在的重量。', lens: 2 },
+      { start: 193, eyebrow: '尾声 · 把答案留给你', title: '最后的安静由你完成', copy: '音乐没有替你说尽。此刻浮现的人、地方或记忆，都是作品的一部分。', lens: 0 }
+    ];
+
+    const prototypeResponses = {
+      'guan-pinghu': ['先听一个音怎样离开，不要只追着下一个音走。', '低音像落笔，余韵才是这一句真正展开的地方。'],
+      'liu-dehai': ['把旋律拆成拨、挑和停顿，动作清楚了，情绪才不会糊成一片。', '这段不必弹得更满，先让每颗声音拥有自己的方向。'],
+      'feng-zicun': ['旋律要靠气息穿过去，装饰音不是点缀，而是说话时的神态。', '先跟着这一口气走，再听节奏怎样把安静推成舞步。'],
+      abing: ['它像夜路。脚步没有停，只是每一步都听得见自己。', '旋律不喊苦，所以那一点苦反而留得更久。'],
+      'xian-xinghai': ['弱声不等于没有力量。持续前进的节拍，本身就是一种意志。', '如果让更多声部加入，这段孤独也可能慢慢汇成共同的呼吸。'],
+      chopin: ['旋律不要赶着抵达，稍微晚一点落下，心事才会浮出来。', '伴奏维持脚步，右手却像人在边走边改变主意。'],
+      bach: ['先分开听三层：低音、和弦、旋律。每一层都很简单，组合后才形成完整秩序。', '重复建立预期，和声的微小偏移则让预期获得方向。'],
+      mozart: ['它像一个角色故意慢半拍开口，让你先注意到房间里的气氛。', '从旋律与戏剧关系看，可以让对话更快；但萨蒂偏偏让沉默占了上风。'],
+      beethoven: ['不要把克制误解为软弱。忍住高潮，同样需要力量。', '当同一材料再次出现，你应当听见它经历过什么，而不只是认出它。'],
+      'scott-joplin': ['三拍子让身体轻轻摆动，但这里的重心被刻意放慢了。', '先跟着低音数拍，再听旋律如何稍稍离开这个稳定的格子。']
+    };
+
+    const topMelody = [
+      [], [], [], [], ['fis5','a5'], ['g5','fis5','cis5'], ['b4','cis5','d5'], ['a4'],
+      ['fis4'], ['fis4'], ['fis4'], ['fis4'], ['fis5','a5'], ['g5','fis5','cis5'], ['b4','cis5','d5'], ['a4']
+    ];
+    const middleChords = [
+      ['b3','d4','fis4'], ['a3','cis4','fis4'], ['b3','d4','fis4'], ['a3','cis4','fis4'],
+      ['b3','d4','fis4'], ['a3','cis4','fis4'], ['b3','d4','fis4'], ['a3','cis4','fis4'],
+      ['b3','d4','fis4'], ['a3','cis4','fis4'], ['b3','d4','fis4'], ['a3','cis4','fis4'],
+      ['b3','d4','fis4'], ['a3','cis4','fis4'], ['b3','d4','fis4'], ['a3','cis4','fis4']
+    ];
+    const bassNotes = ['g2','d2','g2','d2','g2','d2','g2','d2','g2','d2','g2','d2','g2','d2','g2','d2'];
+    const pitchSteps = { c: 0, d: 1, e: 2, f: 3, g: 4, a: 5, b: 6 };
+
+    function pitchY(pitch, staff) {
+      const match = pitch.match(/^([a-g])(is|es)?(\d)$/);
+      const letter = match[1];
+      const octave = Number(match[3]);
+      const diatonic = octave * 7 + pitchSteps[letter];
+      const reference = staff === 'treble' ? 4 * 7 + pitchSteps.e : 2 * 7 + pitchSteps.g;
+      const baseY = staff === 'treble' ? 121 : 246;
+      return baseY - (diatonic - reference) * 5.1;
+    }
+
+    function svgNode(name, attributes = {}) {
+      const node = document.createElementNS('http://www.w3.org/2000/svg', name);
+      Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
+      return node;
+    }
+
+    function drawNote(group, x, y, duration = 'quarter') {
+      const head = svgNode('ellipse', { cx: x, cy: y, rx: 6.6, ry: 4.6, transform: `rotate(-18 ${x} ${y})`, class: duration === 'whole' ? 'note-open' : 'note-ink' });
+      group.appendChild(head);
+      if (duration !== 'whole') {
+        group.appendChild(svgNode('line', { x1: x + 5.6, y1: y - 1, x2: x + 5.6, y2: y - 35, class: 'note-ink' }));
+      }
+    }
+
+    function drawChord(group, x, pitches, staff) {
+      const positions = pitches.map((pitch, index) => ({ x: x + (index % 2) * 2.2, y: pitchY(pitch, staff) }));
+      positions.forEach((position) => group.appendChild(svgNode('ellipse', {
+        cx: position.x, cy: position.y, rx: 6.6, ry: 4.6,
+        transform: `rotate(-18 ${position.x} ${position.y})`, class: 'note-ink'
+      })));
+      const top = Math.min(...positions.map((position) => position.y));
+      const bottom = Math.max(...positions.map((position) => position.y));
+      group.appendChild(svgNode('line', { x1: x + 7, y1: bottom, x2: x + 7, y2: top - 30, class: 'note-ink' }));
+    }
+
+    function drawScore() {
+      [86,96,106,116,126,211,221,231,241,251].forEach((y) => {
+        scoreSvg.appendChild(svgNode('line', { x1: 35, y1: y, x2: 3520, y2: y, class: 'staff-line' }));
+      });
+
+      const trebleClef = svgNode('text', { x: 45, y: 129, class: 'score-clef', 'font-size': 62 });
+      trebleClef.textContent = '𝄞'; scoreSvg.appendChild(trebleClef);
+      const bassClef = svgNode('text', { x: 51, y: 248, class: 'score-clef', 'font-size': 50 });
+      bassClef.textContent = '𝄢'; scoreSvg.appendChild(bassClef);
+      [['3',102],['4',125],['3',227],['4',250]].forEach(([value,y]) => {
+        const text = svgNode('text', { x: 102, y, class: 'time-signature' }); text.textContent = value; scoreSvg.appendChild(text);
+      });
+
+      const tempo = svgNode('text', { x: 143, y: 61, class: 'dynamic-mark' });
+      tempo.textContent = 'Lent et douloureux'; scoreSvg.appendChild(tempo);
+
+      for (let measure = 0; measure <= 16; measure += 1) {
+        const x = scoreStart + measure * measureWidth;
+        scoreSvg.appendChild(svgNode('line', { x1: x, y1: 86, x2: x, y2: 251, class: 'bar-line' }));
+        if (measure < 16) {
+          const number = svgNode('text', { x: x + 7, y: 76, class: 'measure-number' });
+          number.textContent = measure + 1; scoreSvg.appendChild(number);
+        }
+      }
+
+      topMelody.forEach((notes, measure) => {
+        const measureX = scoreStart + measure * measureWidth;
+        if (!notes.length) {
+          const group = svgNode('g', { class: 'note-group', 'data-time': (measure * measureDuration).toFixed(2) });
+          const rest = svgNode('text', { x: measureX + 101, y: 111, class: 'rest-mark' }); rest.textContent = '𝄻';
+          group.appendChild(rest); scoreSvg.appendChild(group); noteGroups.push(group);
+        } else {
+          notes.forEach((pitch, index) => {
+            const time = measure * measureDuration + (notes.length === 1 ? .82 : index * beatDuration + .55);
+            const x = measureX + 52 + index * (112 / Math.max(1, notes.length - 1));
+            const group = svgNode('g', { class: 'note-group', 'data-time': time.toFixed(2) });
+            drawNote(group, x, pitchY(pitch, 'treble'), notes.length === 1 ? 'whole' : 'quarter');
+            scoreSvg.appendChild(group); noteGroups.push(group);
+          });
+        }
+
+        const chordTime = measure * measureDuration + beatDuration;
+        const chordGroup = svgNode('g', { class: 'note-group', 'data-time': chordTime.toFixed(2) });
+        drawChord(chordGroup, measureX + 112, middleChords[measure], 'treble');
+        scoreSvg.appendChild(chordGroup); noteGroups.push(chordGroup);
+
+        const bassGroup = svgNode('g', { class: 'note-group', 'data-time': (measure * measureDuration).toFixed(2) });
+        drawNote(bassGroup, measureX + 52, pitchY(bassNotes[measure], 'bass'), 'whole');
+        scoreSvg.appendChild(bassGroup); noteGroups.push(bassGroup);
+      });
+
+      const slur = svgNode('path', { d: 'M 1010 66 C 1070 33, 1180 33, 1235 66', class: 'slur' });
+      scoreSvg.appendChild(slur);
+    }
+
+    function buildCompanions() {
+      companions.replaceChildren();
+      selectedIds.forEach((id, index) => {
+        const musician = musicianCatalog[id];
+        const item = document.createElement('div');
+        item.className = 'companion';
+        item.dataset.index = index;
+        item.setAttribute('role', 'button');
+        item.setAttribute('tabindex', '0');
+        item.setAttribute('aria-label', `听听${musician.name}的看法`);
+        item.innerHTML = `<div class="speech-bubble">${musician.line}</div><img src="${musician.image}" alt="${musician.name}"><span class="companion-name">${musician.name}</span>`;
+        const speak = () => {
+          setSpeaker(index, false);
+          const responseList = prototypeResponses[id] || [musician.line];
+          const responseIndex = Number(item.dataset.responseIndex || 0) % responseList.length;
+          item.dataset.responseIndex = String(responseIndex + 1);
+          item.querySelector('.speech-bubble').textContent = responseList[responseIndex];
+          addMessage(index, responseList[responseIndex], true);
+        };
+        item.addEventListener('click', speak);
+        item.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            speak();
+          }
+        });
+        companions.appendChild(item);
+      });
+    }
+
+    function addMessage(index, text, userQuestion = false) {
+      const id = selectedIds[index % selectedIds.length];
+      const musician = musicianCatalog[id];
+      const message = document.createElement('article');
+      message.className = 'message';
+      const currentTime = formatTime(audio.currentTime);
+      const answer = text || musician.line;
+      const isLong = answer.length > 92;
+      message.innerHTML = `<img src="${musician.image}" alt=""><div><div class="message-meta"><strong>${musician.name}</strong><time>${currentTime}</time></div><p class="${isLong ? 'is-collapsed' : ''}"></p>${isLong ? '<button class="message-toggle" type="button" aria-expanded="false">展开全文</button>' : ''}${userQuestion ? '<button class="evidence" type="button">查看回答依据 · 原型</button>' : ''}</div>`;
+      message.querySelector('p').textContent = answer;
+      messages.appendChild(message);
+      messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
+    }
+
+    function setSpeaker(index, addToDiscussion = false) {
+      activeSpeaker = index % selectedIds.length;
+      [...companions.children].forEach((item, itemIndex) => item.classList.toggle('is-speaking', itemIndex === activeSpeaker));
+      if (addToDiscussion) addMessage(activeSpeaker);
+    }
+
+    function formatTime(seconds) {
+      if (!Number.isFinite(seconds)) return '00:00';
+      const minutes = Math.floor(seconds / 60).toString().padStart(2,'0');
+      const secs = Math.floor(seconds % 60).toString().padStart(2,'0');
+      return `${minutes}:${secs}`;
+    }
+
+    function updatePlayback() {
+      const current = audio.currentTime;
+      const duration = Number.isFinite(audio.duration) ? audio.duration : 204.8;
+      seekBar.max = duration;
+      seekBar.value = current;
+      timeReadout.textContent = `${formatTime(current)} / ${formatTime(duration)}`;
+
+      const progress = Math.min(1, Math.max(0, current / duration));
+      soundscapeViewport.style.setProperty('--progress', progress.toFixed(4));
+      soundscapeViewport.style.setProperty('--glow-x', `${16 + progress * 68}%`);
+      soundscapeViewport.style.setProperty('--progress-width', `${progress * 100}%`);
+      soundscapeViewport.style.setProperty('--drift-x', `${progress * -7}%`);
+      soundscapeViewport.style.setProperty('--breath-y', `${Math.sin(current * 1.7) * 3}px`);
+      soundscapeViewport.classList.toggle('is-playing', !audio.paused);
+
+      let chapterIndex = 0;
+      soundChapters.forEach((item, index) => { if (current >= item.start) chapterIndex = index; });
+      const chapter = soundChapters[chapterIndex];
+      if (chapterIndex !== activeChapter) {
+        activeChapter = chapterIndex;
+        soundMomentEyebrow.textContent = chapter.eyebrow;
+        soundMomentTitle.textContent = chapter.title;
+        soundMomentCopy.textContent = chapter.copy;
+        listeningLenses.forEach((lens, index) => lens.classList.toggle('is-active', index === chapter.lens));
+      }
+      liveStatus.textContent = chapter.eyebrow.split(' · ')[0];
+
+      const cue = [...listeningCues].reverse().find((item) => current >= item.time) || listeningCues[0];
+      composerNote.querySelector('p').textContent = cue.text;
+
+      const nextSpeaker = Math.floor(current / 18) % selectedIds.length;
+      if (nextSpeaker !== activeSpeaker) setSpeaker(nextSpeaker, false);
+      if (!audio.paused) animationFrame = requestAnimationFrame(updatePlayback);
+    }
+
+    async function togglePlayback() {
+      if (audio.paused) {
+        try { await audio.play(); } catch { showToast('浏览器阻止了自动播放，请再点击一次。'); }
+      } else audio.pause();
+    }
+
+    function updatePlayButton() {
+      const playing = !audio.paused;
+      playButton.classList.toggle('is-playing', playing);
+      playButton.setAttribute('aria-label', playing ? '暂停音乐' : '播放音乐');
+      if (!playing && audio.currentTime) liveStatus.textContent = '已暂停';
+      cancelAnimationFrame(animationFrame);
+      updatePlayback();
+    }
+
+    function showToast(text) {
+      clearTimeout(toastTimer);
+      toast.textContent = text;
+      toast.classList.add('is-visible');
+      toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2200);
+    }
+
+    function answerQuestion(question) {
+      const templates = [
+        `你问“${question}”。我会先从正在重复的低音听起：它让旋律有了可以独自徘徊的地面。`,
+        `我的理解与他略有不同。这里的克制并非空白，而是在邀请听者把自己的感受放进去。`,
+        `如果继续听下去，你会发现变化很少，却每一次都因此更加清楚。` 
+      ];
+      templates.forEach((text, index) => setTimeout(() => {
+        setSpeaker((activeSpeaker + 1) % selectedIds.length, false);
+        addMessage(activeSpeaker, text, true);
+      }, 500 + index * 900));
+    }
+
+    document.querySelectorAll('.mode-button').forEach((button) => button.addEventListener('click', () => {
+      document.querySelectorAll('.mode-button').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+      const notesMode = button.dataset.mode === 'notes';
+      soundscapeViewport.classList.toggle('is-hidden', notesMode);
+      creationNotes.classList.toggle('is-visible', notesMode);
+    }));
+
+    playButton.addEventListener('click', togglePlayback);
+    restartButton.addEventListener('click', async () => { audio.currentTime = 0; await audio.play().catch(() => {}); updatePlayback(); });
+    seekBar.addEventListener('input', () => { audio.currentTime = Number(seekBar.value); updatePlayback(); });
+    audio.addEventListener('play', updatePlayButton);
+    audio.addEventListener('pause', updatePlayButton);
+    audio.addEventListener('loadedmetadata', updatePlayback);
+    audio.addEventListener('ended', updatePlayButton);
+
+    document.querySelectorAll('.prompt-chip').forEach((chip) => chip.addEventListener('click', () => { questionInput.value = chip.textContent; questionInput.focus(); }));
+    questionForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const question = questionInput.value.trim();
+      if (!question) return;
+      questionInput.value = '';
+      answerQuestion(question);
+    });
+    continueTalk.addEventListener('click', () => {
+      messageIndex += 1;
+      setSpeaker((activeSpeaker + 1) % selectedIds.length, true);
+    });
+    messages.addEventListener('click', (event) => {
+      if (event.target.classList.contains('evidence')) showToast('下一步会接入 RAG 史料来源卡片。');
+      if (event.target.classList.contains('message-toggle')) {
+        const paragraph = event.target.previousElementSibling;
+        const expanded = event.target.getAttribute('aria-expanded') === 'true';
+        paragraph.classList.toggle('is-collapsed', expanded);
+        event.target.setAttribute('aria-expanded', String(!expanded));
+        event.target.textContent = expanded ? '展开全文' : '收起';
+      }
+    });
+
+    buildCompanions();
+    setSpeaker(0, false);
+    selectedIds.forEach((id, index) => addMessage(index, musicianCatalog[id].line));
+    updatePlayButton();
+  </script>
+  <script src="assets/js/listening-room.js?v=20260902-1"></script>
+</body>
+</html>

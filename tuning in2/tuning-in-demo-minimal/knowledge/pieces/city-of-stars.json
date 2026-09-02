@@ -1,0 +1,150 @@
+{
+  "piece_id": "city-of-stars",
+  "title": "City of Stars",
+  "composer": "Justin Hurwitz",
+  "composer_status": "official_soundtrack_source_checked",
+  "lyricists": ["Benj Pasek", "Justin Paul"],
+  "related_work": "La La Land",
+  "duration_seconds": 231.804172,
+  "performance": {
+    "type": "user_provided_piano_performance",
+    "video_path": "知音-web-deploy/assets/video/library/city-of-stars-performance.mp4",
+    "audio_path": "知音-web-deploy/assets/audio/library/city-of-stars.mp3",
+    "rights_status": "needs_publication_review"
+  },
+  "aliases": ["City of Stars", "city of stars", "星光之城", "La La Land City of Stars"],
+  "work_facts": [
+    "Interscope 的 La La Land 官方原声页面将 City of Stars 列入曲目，并说明影片配乐由 Justin Hurwitz 创作和配器、歌词由 Pasek 与 Paul 创作。",
+    "当前项目使用用户提供的无歌词钢琴演奏视频，不是原声带中的人声版本。",
+    "当前版本为无歌词钢琴演奏，不能把原作歌词或电影人物正在说的话当作此刻实际发声内容。"
+  ],
+  "source_records": [
+    {
+      "source_id": "CITY_INTERSCOPE_SOUNDTRACK_001",
+      "publisher": "Interscope Records",
+      "url": "https://interscope.com/products/la-la-land-original-score-2lp",
+      "supports": ["related_work", "composer", "lyricists", "official_track_context"],
+      "checked_at": "2026-08-29"
+    },
+    {
+      "source_id": "CITY_LOCAL_PERFORMANCE_001",
+      "publisher": "user-provided project media",
+      "path": "知音-web-deploy/assets/video/library/city-of-stars-performance.mp4",
+      "supports": ["current_performance", "duration", "segment_analysis"],
+      "checked_at": "2026-08-29"
+    }
+  ],
+  "answer_boundaries": [
+    "作品背景与当前演奏分析分开回答；电影语境不能替代音轨证据。",
+    "可以讨论当前演奏中标注的响度、声音数量、音区明暗、停顿和收束。",
+    "没有可靠来源或片段标注时，不虚构具体歌词、和弦名称、曲式标签或演奏者心理。"
+  ],
+  "analysis": {
+    "source_audio": "video_audio_track",
+    "analysis_sample_rate": 22050,
+    "features": ["RMS响度", "过零率", "频谱重心", "频谱变化量", "静音检测"],
+    "review_status": "audio_feature_checked"
+  },
+  "segments": [
+    {
+      "segment_id": "city-opening-line",
+      "start_time": 0,
+      "end_time": 34,
+      "cue_time": 9,
+      "stage": "开场",
+      "music_features": ["开头音量较轻", "旋律短句清楚", "旋律与支撑之间留有空间"],
+      "listen_for": "先记住最容易哼出的短句，听它说完后留了多少空间。",
+      "editor_note": "音轨在约四秒半后进入，开场保持较轻响度和清楚短句。"
+    },
+    {
+      "segment_id": "city-first-approach",
+      "start_time": 34,
+      "end_time": 64,
+      "cue_time": 34,
+      "stage": "靠近",
+      "music_features": ["旋律连接更紧", "响度逐渐增加", "高处活动增加"],
+      "listen_for": "比较开头：旋律第二次说起时，是不是更连贯，也更靠近。",
+      "editor_note": "00:34 前后响度和频谱活动增加，第一轮扩展开始形成。"
+    },
+    {
+      "segment_id": "city-first-turn",
+      "start_time": 64,
+      "end_time": 81,
+      "cue_time": 64,
+      "stage": "转身",
+      "music_features": ["上一段活动短暂收细", "声音密度下降", "旋律重新突出"],
+      "listen_for": "听较满的声音退开后，哪条旋律还留在前面。",
+      "editor_note": "01:04 附近频谱变化量和声音活动下降，为第一轮高点留出边界。"
+    },
+    {
+      "segment_id": "city-first-crest",
+      "start_time": 81,
+      "end_time": 111,
+      "cue_time": 81,
+      "stage": "涌起",
+      "music_features": ["响度进入第一轮高区", "高低范围同时更活跃", "声音数量增加"],
+      "listen_for": "不要只听变响，也听同一时间是不是出现了更多声音。",
+      "editor_note": "01:21 后形成第一轮持续扩展，响度与频谱活动共同增加。"
+    },
+    {
+      "segment_id": "city-open-space",
+      "start_time": 111,
+      "end_time": 134,
+      "cue_time": 111,
+      "stage": "留白",
+      "music_features": ["响度明显下降", "织体变薄", "句子之间空间增加"],
+      "listen_for": "听上一轮退下去以后，安静是突然出现，还是一点点空出来。",
+      "editor_note": "01:51 附近出现明显回落，旋律和支撑关系重新变得稀疏。"
+    },
+    {
+      "segment_id": "city-second-departure",
+      "start_time": 134,
+      "end_time": 151,
+      "cue_time": 134,
+      "stage": "再起",
+      "music_features": ["熟悉轮廓重新出现", "活动范围逐渐扩大", "响度恢复"],
+      "listen_for": "认出熟悉短句，再听这一次是不是更快开始变满。",
+      "editor_note": "02:14 后音乐从较轻状态重新积累，形成第二轮扩展。"
+    },
+    {
+      "segment_id": "city-second-crest",
+      "start_time": 151,
+      "end_time": 181,
+      "cue_time": 151,
+      "stage": "推高",
+      "music_features": ["第二轮持续高响度", "低处与高处同时活跃", "整体声音更满"],
+      "listen_for": "比较两轮高点：这一轮只是更响，还是上下都变得更忙。",
+      "editor_note": "02:31 后形成第二轮宽广高点，持续时间较长。"
+    },
+    {
+      "segment_id": "city-main-release",
+      "start_time": 181,
+      "end_time": 197,
+      "cue_time": 181,
+      "stage": "回落",
+      "music_features": ["响度快速下降", "频谱活动减少", "段落边界明显"],
+      "listen_for": "听饱满的声音怎样一起退下去，哪一层最后才松开。",
+      "editor_note": "03:01 附近发生显著回落，第二轮扩展清楚结束。"
+    },
+    {
+      "segment_id": "city-final-look-back",
+      "start_time": 197,
+      "end_time": 214,
+      "cue_time": 197,
+      "stage": "回望",
+      "music_features": ["旋律片段变得稀疏", "停顿变长", "响度保持较轻"],
+      "listen_for": "只跟住零散出现的短句，听每次停顿是不是比前面更长。",
+      "editor_note": "03:17 后声音数量减少，短句与停顿成为主要听觉关系。"
+    },
+    {
+      "segment_id": "city-final-release",
+      "start_time": 214,
+      "end_time": 231.804172,
+      "cue_time": 214,
+      "stage": "落定",
+      "music_features": ["较长停顿出现", "只剩少量落键", "最终余响后进入安静"],
+      "listen_for": "最后几次落键后别马上离开，等到余响真的不见。",
+      "editor_note": "03:34 后出现较长停顿和零散落键，约03:47进入最终安静。"
+    }
+  ]
+}

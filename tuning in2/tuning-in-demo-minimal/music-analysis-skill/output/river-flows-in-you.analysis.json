@@ -1,0 +1,491 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-29T12:55:34.368Z",
+  "piece": {
+    "piece_id": "river-flows-in-you",
+    "title": "River Flows In You",
+    "composer": "Yiruma",
+    "audio_path": "知音-web-deploy/assets/audio/library/river-flows-in-you.mp3",
+    "duration_seconds": 209.152,
+    "source_piece_path": "knowledge/pieces/river-flows-in-you.json"
+  },
+  "analysis_status": "draft_ai_enriched",
+  "local_analysis": {
+    "toolchain": [
+      "ffprobe",
+      "ffmpeg",
+      "zhiyin-local-signal-analyzer"
+    ],
+    "metadata": {
+      "duration_seconds": 209.152018,
+      "source_sample_rate": 44100,
+      "source_channels": 2,
+      "codec_name": "mp3"
+    },
+    "analysis_sample_rate": 8000,
+    "window_seconds": 2,
+    "track_metrics": {
+      "loudness_p10_db": -33.225,
+      "loudness_median_db": -23.844,
+      "loudness_p90_db": -17.763,
+      "dynamic_range_db": 15.462,
+      "average_silence_ratio": 0.113
+    }
+  },
+  "whole_work": {
+    "measured_arc": [
+      {
+        "start_time": 0,
+        "stage": "开场",
+        "relative_energy": 0.305
+      },
+      {
+        "start_time": 32,
+        "stage": "抬升",
+        "relative_energy": 0.799
+      },
+      {
+        "start_time": 56,
+        "stage": "推进",
+        "relative_energy": 0.681
+      },
+      {
+        "start_time": 80,
+        "stage": "高点",
+        "relative_energy": 0.905
+      },
+      {
+        "start_time": 108,
+        "stage": "转身",
+        "relative_energy": 0.205
+      },
+      {
+        "start_time": 128,
+        "stage": "延续",
+        "relative_energy": 0.687
+      },
+      {
+        "start_time": 160,
+        "stage": "回落",
+        "relative_energy": 0.421
+      },
+      {
+        "start_time": 188,
+        "stage": "收束",
+        "relative_energy": -0.11
+      }
+    ],
+    "loudest_stage": "高点",
+    "loudest_time": 80,
+    "quietest_stage": "收束",
+    "quietest_time": 188,
+    "audible_arc": "全曲由轻柔的钢琴单音开场，经过多次响度与能量的起伏抬升，中段经历短暂回落后再度推向高点，随后逐渐减弱并平静收束。",
+    "main_material": [
+      "连贯流动的钢琴单音旋律",
+      "伴奏声部与主旋律的交织"
+    ],
+    "texture": [
+      "单音线条逐渐丰富为带有伴奏的织体"
+    ],
+    "beginner_summary": "这是一首钢琴曲，声音像流水般时而平缓、时而激昂，整体起伏明显，容易跟随着音乐的节奏感受到情绪的推移。",
+    "interpretation_boundaries": [
+      "本地信号分析不能确认作曲者意图",
+      "本地信号分析不能独立确认旋律、和声、调性、曲式或具体演奏技法",
+      "无法从声音确定具体的故事情节或创作背景"
+    ]
+  },
+  "segments": [
+    {
+      "segment_id": "river-flows-in-you-auto-01",
+      "start_time": 0,
+      "end_time": 32,
+      "stage": "开场",
+      "signal_metrics": {
+        "average_loudness_db": -28.513,
+        "relative_energy": 0.305,
+        "loudness_trend_db": 0.94,
+        "silence_ratio": 0.165
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "注意听轻柔连贯的钢琴单音，感受音乐平静的起点。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "river-flows-in-you-auto-02",
+      "start_time": 32,
+      "end_time": 56,
+      "stage": "抬升",
+      "signal_metrics": {
+        "average_loudness_db": -20.872,
+        "relative_energy": 0.799,
+        "loudness_trend_db": 2.984,
+        "silence_ratio": 0.042
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度高于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度高于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "注意听声音逐渐变响、能量感增强的过程。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "river-flows-in-you-auto-03",
+      "start_time": 56,
+      "end_time": 80,
+      "stage": "推进",
+      "signal_metrics": {
+        "average_loudness_db": -22.691,
+        "relative_energy": 0.681,
+        "loudness_trend_db": -7.916,
+        "silence_ratio": 0.064
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "注意听音乐在达到一定强度后逐渐收敛、变轻的趋势。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "river-flows-in-you-auto-04",
+      "start_time": 80,
+      "end_time": 108,
+      "stage": "高点",
+      "signal_metrics": {
+        "average_loudness_db": -19.241,
+        "relative_energy": 0.905,
+        "loudness_trend_db": -1.698,
+        "silence_ratio": 0.033
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度高于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度高于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "感受全曲能量较强、声音较饱满的片段。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "river-flows-in-you-auto-05",
+      "start_time": 108,
+      "end_time": 128,
+      "stage": "转身",
+      "signal_metrics": {
+        "average_loudness_db": -30.05,
+        "relative_energy": 0.205,
+        "loudness_trend_db": -1.143,
+        "silence_ratio": 0.141
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "注意听音乐突然变轻，形成一个明显的过渡或喘息空间。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "river-flows-in-you-auto-06",
+      "start_time": 128,
+      "end_time": 160,
+      "stage": "延续",
+      "signal_metrics": {
+        "average_loudness_db": -22.596,
+        "relative_energy": 0.687,
+        "loudness_trend_db": 6.433,
+        "silence_ratio": 0.067
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "跟随声音的再次抬升，注意聆听力度变强的变化。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "river-flows-in-you-auto-07",
+      "start_time": 160,
+      "end_time": 188,
+      "stage": "回落",
+      "signal_metrics": {
+        "average_loudness_db": -26.721,
+        "relative_energy": 0.421,
+        "loudness_trend_db": -6.938,
+        "silence_ratio": 0.105
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "注意听音乐逐渐减弱，情绪开始趋于平稳。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "river-flows-in-you-auto-08",
+      "start_time": 188,
+      "end_time": 209.152,
+      "stage": "收束",
+      "signal_metrics": {
+        "average_loudness_db": -34.926,
+        "relative_energy": -0.11,
+        "loudness_trend_db": -22.658,
+        "silence_ratio": 0.321
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "注意听最后一个音逐渐消逝，全曲归于平静。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    }
+  ],
+  "persona_runtime": {
+    "strategy": "shared_evidence_dynamic_rendering",
+    "stores_fixed_persona_answers": false,
+    "supported_musicians": [
+      "mozart",
+      "bach",
+      "beethoven"
+    ],
+    "lens_reference": "music-analysis-skill/references/persona-lenses.md"
+  },
+  "comparison_reference": {
+    "existing_segment_count": 8,
+    "path": "knowledge/pieces/river-flows-in-you.json"
+  },
+  "review": {
+    "required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "notes": []
+  },
+  "ai_enrichment": {
+    "model": "gemini-3.5-flash-lite-free",
+    "generated_at": "2026-08-29T12:55:44.263Z",
+    "request_count": 1
+  }
+}

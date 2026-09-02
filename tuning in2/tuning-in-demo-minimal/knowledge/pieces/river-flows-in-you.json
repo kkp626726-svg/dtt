@@ -1,0 +1,122 @@
+{
+  "piece_id": "river-flows-in-you",
+  "title": "River Flows In You",
+  "composer": "Yiruma",
+  "composer_status": "official_source_checked",
+  "original_album": "First Love",
+  "original_album_year": 2001,
+  "duration_seconds": 209.163,
+  "performance": {
+    "type": "user_provided_piano_performance",
+    "video_path": "知音-web-deploy/assets/video/library/river-flows-in-you-performance.mp4",
+    "audio_path": "知音-web-deploy/assets/audio/library/river-flows-in-you.mp3",
+    "rights_status": "needs_publication_review"
+  },
+  "aliases": ["River Flows in You", "river flows in you", "河流在你心中"],
+  "work_facts": [
+    "当前项目使用的是用户提供的钢琴演奏视频，不应把该演奏中的全部细节直接归为原始录音或唯一标准版本。",
+    "Yiruma 官方简介将 River Flows in You 登记为其作品，并说明作品收录于 2001 年的第二张专辑 First Love。"
+  ],
+  "source_records": [
+    {
+      "source_id": "RIVER_OFFICIAL_YIRUMA_BIO_001",
+      "publisher": "Yiruma official website",
+      "url": "https://yiruma.com/biography/?lang=en",
+      "supports": ["composer", "original_album", "original_album_year"],
+      "checked_at": "2026-08-29"
+    },
+    {
+      "source_id": "RIVER_LOCAL_PERFORMANCE_001",
+      "publisher": "user-provided project media",
+      "path": "知音-web-deploy/assets/video/library/river-flows-in-you-performance.mp4",
+      "supports": ["current_performance", "duration", "segment_analysis"],
+      "checked_at": "2026-08-29"
+    }
+  ],
+  "answer_boundaries": [
+    "可以讨论当前演奏中实际标注的旋律回归、左右手分工、响度变化和收束。",
+    "不能根据标题自动把所有声音解释成水流，也不能虚构作曲者创作时的私人画面。"
+  ],
+  "segments": [
+    {
+      "segment_id": "river-opening-pattern",
+      "start_time": 0,
+      "end_time": 32,
+      "cue_time": 9,
+      "stage": "起步",
+      "music_features": ["右手短旋律反复出现", "左手保持连续流动", "整体音量较轻"],
+      "listen_for": "先别追每个音，只听右手这一小串声音怎样一次次回来。",
+      "editor_note": "开头用容易辨认的短旋律建立记忆，左右手形成旋律与流动支撑的两层关系。"
+    },
+    {
+      "segment_id": "river-first-lift",
+      "start_time": 32,
+      "end_time": 55,
+      "cue_time": 32,
+      "stage": "靠近",
+      "music_features": ["熟悉旋律抬高", "响度逐渐增加", "左手流动保持"],
+      "listen_for": "比较前十秒：同一句旋律，现在是不是更亮、更有方向？",
+      "editor_note": "旋律仍可辨认，但通过音区和响度变化获得更靠近的听感。"
+    },
+    {
+      "segment_id": "river-fuller-current",
+      "start_time": 55,
+      "end_time": 82,
+      "cue_time": 55,
+      "stage": "展开",
+      "music_features": ["左手活动更密", "上下两层持续配合", "向前推动增强"],
+      "listen_for": "把注意力从旋律移到左手，听它怎样把音乐不断向前送。",
+      "editor_note": "同一时间出现的声音增加，持续伴奏让较长旋律保持向前。"
+    },
+    {
+      "segment_id": "river-brightest-wave",
+      "start_time": 82,
+      "end_time": 108,
+      "cue_time": 82,
+      "stage": "涌起",
+      "music_features": ["音区提高", "响度增加", "上下两层同时更充实"],
+      "listen_for": "比较现在与开头：声音是更高、更满，还是更急？",
+      "editor_note": "第一轮明显高点由音区、响度和声音数量共同形成，不只是一处重音。"
+    },
+    {
+      "segment_id": "river-quiet-return",
+      "start_time": 108,
+      "end_time": 131,
+      "cue_time": 108,
+      "stage": "回落",
+      "music_features": ["响度回落", "织体变薄", "熟悉旋律重新突出"],
+      "listen_for": "听刚才的饱满退去后，熟悉的旋律为什么显得更安静。",
+      "editor_note": "声音数量和重量减少，但旋律轮廓仍提供方向。"
+    },
+    {
+      "segment_id": "river-second-departure",
+      "start_time": 131,
+      "end_time": 166,
+      "cue_time": 131,
+      "stage": "再出发",
+      "music_features": ["熟悉材料再次上升", "伴奏继续流动", "第二轮积累更早出现"],
+      "listen_for": "先预测下一句会往哪里走，再听它是否真的这样继续。",
+      "editor_note": "重复材料建立预期，第二轮上升通过已形成的记忆更快产生推动感。"
+    },
+    {
+      "segment_id": "river-release",
+      "start_time": 166,
+      "end_time": 188,
+      "cue_time": 166,
+      "stage": "松开",
+      "music_features": ["响度逐渐下降", "旋律和伴奏先后退场", "声音密度减少"],
+      "listen_for": "听不同层是一起退下去，还是有一层多留了一会儿。",
+      "editor_note": "高潮后的退场不是瞬间停止，而是通过不同层次的减少形成释放。"
+    },
+    {
+      "segment_id": "river-last-ripple",
+      "start_time": 188,
+      "end_time": 209.163,
+      "cue_time": 188,
+      "stage": "余波",
+      "music_features": ["主旋律最后回归", "短句缩短", "响度变轻并停止"],
+      "listen_for": "最后一次认出主旋律后，继续听它怎样缩短、变轻并停下来。",
+      "editor_note": "结尾逐渐拿走复杂层次，以仍可辨认的旋律轮廓完成收束。"
+    }
+  ]
+}

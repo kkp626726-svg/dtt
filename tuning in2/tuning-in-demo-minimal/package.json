@@ -1,0 +1,40 @@
+{
+  "name": "zhiyin-ai-musicians",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.mjs",
+    "eval:dry": "node scripts/evaluate-models.mjs --dry-run",
+    "eval:models": "node scripts/evaluate-models.mjs",
+    "eval:knowledge": "node scripts/evaluate-knowledge.mjs",
+    "eval:listening": "node scripts/evaluate-v2-listening-retrieval.mjs",
+    "eval:listening:challenge": "node scripts/evaluate-v2-listening-challenge.mjs",
+    "eval:vector": "node scripts/evaluate-v2-vector-retrieval.mjs",
+    "knowledge:embed-pieces": "node scripts/build-piece-vector-cache.mjs",
+    "knowledge:embed-musicians": "node scripts/build-musician-vector-cache.mjs",
+    "eval:pieces": "node scripts/evaluate-three-piece-answers.mjs",
+    "eval:free": "node scripts/evaluate-free-questions.mjs",
+    "eval:unified-retrieval": "node scripts/evaluate-unified-retrieval.mjs",
+    "eval:nodes": "node scripts/evaluate-node-variation.mjs",
+    "eval:personas": "node scripts/evaluate-persona-routing.mjs",
+    "eval:persona-distinction": "node scripts/evaluate-persona-distinction.mjs",
+    "eval:conversation-naturalness": "node scripts/evaluate-conversation-naturalness.mjs",
+    "eval:topic-drift": "node scripts/evaluate-topic-drift.mjs",
+    "eval:dialogue": "node scripts/evaluate-dialogue-core.mjs",
+    "music:analyze": "node music-analysis-skill/runtime/analyze.mjs",
+    "music:analyze:all": "node music-analysis-skill/runtime/analyze.mjs --all",
+    "music:compare": "node music-analysis-skill/runtime/compare-existing.mjs",
+    "music:audit": "node music-analysis-skill/runtime/audit.mjs",
+    "music:upload": "node music-analysis-skill/runtime/upload-server.mjs",
+    "music:validate": "node music-analysis-skill/runtime/validate.mjs music-analysis-skill/output/river-flows-in-you.analysis.json music-analysis-skill/output/sonnet-piano.analysis.json music-analysis-skill/output/city-of-stars.analysis.json",
+    "sync:frontend": "node scripts/sync-frontend-sources.mjs",
+    "check:frontend": "node --check 知音-web-deploy/assets/js/listening-room.js && node scripts/sync-frontend-sources.mjs --check",
+    "knowledge:expand-core": "node scripts/expand-v2-core-knowledge.mjs",
+    "test:pieces": "node scripts/validate-three-piece-knowledge.mjs",
+    "report:listening": "node scripts/generate-listening-evaluation-report.mjs"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

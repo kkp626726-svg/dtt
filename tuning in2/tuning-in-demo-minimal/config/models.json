@@ -1,0 +1,21 @@
+{
+  "router_model": "gemini-3.5-flash-lite",
+  "character_model": "gpt-5.6-luna",
+  "fallback_model": "deepseek-v4-flash-0731",
+  "retrieval": {
+    "embedding_model": "BAAI/bge-large-zh-v1.5",
+    "vector_top_k": 3,
+    "candidate_top_k": 8,
+    "listen_min_score": 0.30,
+    "fact_min_score": 0.45,
+    "rerank_enabled": true,
+    "rerank_strategy": "heuristic_scope_time_lexical",
+    "fallback_to_fts": true
+  },
+  "temperature": {
+    "router": 0.1,
+    "character": 0.2
+  },
+  "max_retries": 1,
+  "timeout_ms": 15000
+}

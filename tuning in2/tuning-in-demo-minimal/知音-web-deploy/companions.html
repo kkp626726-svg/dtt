@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="选择三位陪你聆听音乐的 AI 音乐家">
+  <title>选择陪听者 · Tuning In</title>
+  <style>
+    :root {
+      --ink: #3d3932;
+      --muted: #746d60;
+      --paper: #f3e7c4;
+      --paper-light: #fbf4dc;
+      --staff: #938b7b;
+      --accent: #b49145;
+      --accent-light: #ead79d;
+      --bubble: #3d3a34;
+      --card: rgba(250, 240, 209, .76);
+      --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --font-display: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-ui);
+      font-weight: 400;
+    }
+
+    body { overflow-x: hidden; }
+    button, a { font: inherit; }
+
+    .page {
+      position: relative;
+      min-height: 100svh;
+      overflow: hidden;
+      isolation: isolate;
+      padding: 34px clamp(22px, 4.6vw, 72px) 26px;
+      background-color: var(--paper);
+      background-image:
+        radial-gradient(circle at 18% 14%, rgba(255, 255, 255, .62), transparent 34%),
+        radial-gradient(circle at 82% 76%, rgba(166, 126, 54, .09), transparent 36%),
+        repeating-linear-gradient(8deg, rgba(111, 87, 43, .025) 0 1px, transparent 1px 7px),
+        repeating-linear-gradient(96deg, rgba(255, 255, 255, .16) 0 1px, transparent 1px 11px);
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -3;
+      pointer-events: none;
+      opacity: .42;
+      background-image:
+        radial-gradient(circle at 22% 30%, rgba(92, 67, 26, .08) 0 .7px, transparent .9px),
+        radial-gradient(circle at 68% 62%, rgba(255, 255, 255, .35) 0 .8px, transparent 1px);
+      background-size: 15px 17px, 19px 21px;
+      mix-blend-mode: multiply;
+    }
+
+    .score-backdrop {
+      position: absolute;
+      z-index: -2;
+      top: 116px;
+      left: -4%;
+      width: 108%;
+      height: 340px;
+      color: var(--staff);
+      opacity: .24;
+      pointer-events: none;
+      mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
+    }
+
+    .score-backdrop path {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+    }
+
+    .score-backdrop text {
+      fill: currentColor;
+      font-family: "Apple Symbols", "Times New Roman", serif;
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 15px;
+      letter-spacing: .02em;
+    }
+
+    .back-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(61, 57, 50, .24);
+      border-radius: 50%;
+      transition: transform .22s ease, background .22s ease;
+    }
+
+    .back-link:hover .back-icon,
+    .back-link:focus-visible .back-icon {
+      transform: translateX(-3px);
+      background: rgba(255, 250, 230, .54);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .languages {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .language {
+      appearance: none;
+      border: 0;
+      border-bottom: 1px solid transparent;
+      padding: 3px 0;
+      color: var(--ink);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .language[aria-pressed="true"] { border-bottom-color: currentColor; }
+
+    .music-toggle {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(61, 57, 50, .22);
+      border-radius: 50%;
+      color: var(--ink);
+      background: rgba(255, 249, 228, .52);
+      cursor: pointer;
+      transition: transform .24s ease, border-color .24s ease, background .24s ease;
+    }
+
+    .music-toggle:hover,
+    .music-toggle:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(180, 145, 69, .72);
+    }
+
+    .music-toggle.is-playing { background: rgba(234, 215, 157, .58); }
+    .music-toggle svg { width: 22px; height: 22px; }
+    .music-toggle .music-slash { transition: opacity .2s ease; }
+    .music-toggle.is-playing .music-slash { opacity: 0; }
+
+    .intro {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      margin: clamp(30px, 4.5vh, 52px) auto 26px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #7e704d;
+      font-size: 13px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .intro h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(38px, 4.4vw, 66px);
+      font-weight: 500;
+      line-height: 1.05;
+      letter-spacing: -.045em;
+      text-wrap: balance;
+    }
+
+    .intro-copy {
+      max-width: 630px;
+      margin: 14px auto 20px;
+      color: #5d564b;
+      font-size: clamp(14px, 1.12vw, 17px);
+      line-height: 1.7;
+    }
+
+    .random-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 44px;
+      border: 1px solid rgba(61, 57, 50, .24);
+      border-radius: 999px;
+      padding: 0 20px;
+      color: var(--ink);
+      background: rgba(255, 249, 229, .58);
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(93, 71, 30, .05);
+      transition: transform .24s ease, border-color .24s ease, background .24s ease;
+    }
+
+    .random-button:hover,
+    .random-button:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(180, 145, 69, .76);
+      background: rgba(250, 237, 194, .76);
+    }
+
+    .random-button svg { width: 18px; height: 18px; }
+
+    .artist-grid {
+      position: relative;
+      z-index: 3;
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: clamp(10px, 1.15vw, 17px);
+    }
+
+    .artist-card {
+      position: relative;
+      min-width: 0;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      border: 1px solid rgba(94, 79, 49, .14);
+      border-radius: 21px;
+      padding: 8px 13px 15px;
+      color: inherit;
+      background: var(--card);
+      box-shadow: 0 13px 38px rgba(86, 64, 25, .045);
+      cursor: pointer;
+      overflow: hidden;
+      text-align: left;
+      transition: transform .28s cubic-bezier(.2, .8, .2, 1), border-color .28s ease, background .28s ease, box-shadow .28s ease, opacity .28s ease;
+    }
+
+    .artist-card::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border: 1px solid transparent;
+      border-radius: 15px;
+      pointer-events: none;
+      transition: border-color .28s ease, box-shadow .28s ease;
+    }
+
+    .artist-card:hover,
+    .artist-card:focus-visible {
+      z-index: 5;
+      transform: translateY(-7px);
+      border-color: rgba(180, 145, 69, .5);
+      box-shadow: 0 20px 42px rgba(86, 64, 25, .11);
+      outline: none;
+    }
+
+    .artist-card.is-selected {
+      transform: translateY(-5px);
+      border-color: rgba(180, 145, 69, .88);
+      background: rgba(250, 235, 186, .88);
+      box-shadow: 0 20px 46px rgba(116, 84, 22, .14);
+    }
+
+    .artist-card.is-selected::before {
+      border-color: rgba(180, 145, 69, .5);
+      box-shadow: inset 0 0 22px rgba(255, 248, 218, .62);
+    }
+
+    .artist-card.is-muted:not(.is-selected) { opacity: .54; }
+
+    .artist-card.is-preview {
+      cursor: pointer;
+      opacity: .86;
+      filter: saturate(.86);
+    }
+
+    .capability-badge {
+      position: absolute;
+      z-index: 4;
+      top: 10px;
+      left: 10px;
+      padding: 5px 8px;
+      border: 1px solid rgba(61,57,50,.14);
+      border-radius: 999px;
+      color: #6f675a;
+      background: rgba(252,246,226,.86);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+
+    .artist-card.is-smart .capability-badge {
+      color: #5f4a1d;
+      border-color: rgba(180,145,69,.42);
+      background: #f3dea0;
+    }
+
+    .selection-order {
+      position: absolute;
+      z-index: 5;
+      top: 13px;
+      right: 13px;
+      width: 29px;
+      height: 29px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fffbee;
+      background: var(--bubble);
+      font-size: 13px;
+      opacity: 0;
+      transform: scale(.65);
+      transition: opacity .22s ease, transform .26s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .artist-card.is-selected .selection-order {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .portrait {
+      position: relative;
+      height: clamp(120px, 9.8vw, 140px);
+      display: grid;
+      place-items: end center;
+      padding: 5px 0 11px;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .portrait img {
+      width: min(86%, 142px);
+      height: min(100%, 116px);
+      object-fit: contain;
+      object-position: center bottom;
+      filter: drop-shadow(0 9px 7px rgba(86, 65, 31, .07));
+      transform-origin: center bottom;
+      transition: transform .3s cubic-bezier(.2, .8, .2, 1), filter .3s ease;
+    }
+
+    .artist-card:hover .portrait img,
+    .artist-card:focus-visible .portrait img,
+    .artist-card.is-selected .portrait img {
+      transform: translateY(-4px) scale(1.025);
+      filter: drop-shadow(0 12px 10px rgba(126, 92, 25, .12));
+    }
+
+    .artist-meta {
+      position: relative;
+      z-index: 4;
+      flex: 1;
+      width: calc(100% + 10px);
+      margin: 0 -5px -6px;
+      padding: 10px 5px 6px;
+      background: rgba(250, 240, 209, .96);
+      border-radius: 0 0 14px 14px;
+      pointer-events: none;
+      transition: background .28s ease;
+    }
+
+    .artist-card.is-selected .artist-meta { background: rgba(250, 235, 186, .98); }
+
+    .artist-name {
+      position: relative;
+      z-index: 3;
+      margin: 1px 0 0;
+      font-family: Georgia, "Songti SC", serif;
+      font-size: clamp(18px, 1.38vw, 22px);
+      font-weight: 500;
+      line-height: 1.15;
+      text-align: center;
+    }
+
+    .artist-name-en {
+      display: block;
+      min-height: 17px;
+      margin-top: 4px;
+      color: #7b7263;
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .artist-view {
+      margin: 9px 0 0;
+      color: #6d6559;
+      font-size: 11px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .artist-card.is-revealing { animation: reveal-card .58s cubic-bezier(.2, .8, .2, 1) both; }
+
+    .selection-dock {
+      position: sticky;
+      z-index: 30;
+      bottom: 12px;
+      width: min(720px, calc(100vw - 34px));
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: minmax(150px, 1fr) auto auto;
+      align-items: center;
+      gap: 12px;
+      margin: 16px auto 0;
+      padding: 7px 8px 7px 18px;
+      border: 1px solid rgba(255, 255, 255, .09);
+      border-radius: 17px;
+      color: #fffdf5;
+      background: rgba(57, 54, 48, .96);
+      box-shadow: 0 22px 70px rgba(67, 50, 23, .25);
+      backdrop-filter: blur(14px);
+    }
+
+    .selection-copy { min-width: 0; }
+    .selection-copy strong { display: block; font-size: 13px; font-weight: 500; }
+    .selection-copy span { display: block; margin-top: 2px; color: rgba(255, 253, 245, .62); font-size: 10px; }
+
+    .selected-portraits {
+      min-width: 104px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+    }
+
+    .selected-mini {
+      position: relative;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: end center;
+      overflow: hidden;
+    }
+
+    .selected-mini img { width: 100%; height: 100%; object-fit: contain; }
+
+    .selected-empty {
+      width: 29px;
+      height: 29px;
+      border: 1px dashed rgba(255, 253, 245, .26);
+      border-radius: 50%;
+    }
+
+    .continue-button {
+      min-width: 126px;
+      min-height: 44px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 12px;
+      padding: 0 16px;
+      color: #393630;
+      background: var(--accent-light);
+      cursor: pointer;
+      font-size: 13px;
+      transition: transform .22s ease, background .22s ease, opacity .22s ease;
+    }
+
+    .continue-button:hover:not(:disabled),
+    .continue-button:focus-visible:not(:disabled) {
+      transform: translateY(-2px);
+      background: #f2dfa5;
+    }
+
+    .continue-button:disabled { cursor: not-allowed; opacity: .36; }
+
+    .toast {
+      position: fixed;
+      z-index: 60;
+      top: 24px;
+      left: 50%;
+      max-width: calc(100vw - 32px);
+      padding: 11px 17px;
+      border-radius: 999px;
+      color: #fffdf5;
+      background: rgba(57, 54, 48, .96);
+      box-shadow: 0 12px 34px rgba(67, 50, 23, .18);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -12px);
+      transition: opacity .24s ease, transform .24s ease;
+      font-size: 13px;
+    }
+
+    .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+    @keyframes reveal-card {
+      0% { transform: translateY(8px) scale(.96); }
+      55% { transform: translateY(-9px) scale(1.025); }
+      100% { transform: translateY(-5px) scale(1); }
+    }
+
+    @media (max-width: 960px) {
+      .artist-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .artist-card { min-height: 226px; }
+      .selection-dock { grid-template-columns: 1fr auto; }
+      .selected-portraits { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 23px 16px 18px; }
+      .back-label { display: none; }
+      .top-actions { gap: 12px; }
+      .intro { margin-top: 28px; }
+      .intro h1 { font-size: 39px; }
+      .artist-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .artist-card { min-height: 210px; padding-inline: 8px; }
+      .portrait { height: 112px; padding-bottom: 9px; }
+      .portrait img { width: min(88%, 126px); height: min(100%, 98px); }
+      .artist-view { font-size: 10px; }
+      .selection-dock { bottom: 8px; min-height: 56px; gap: 8px; padding: 6px 7px 6px 14px; }
+      .selection-copy strong { font-size: 13px; }
+      .selection-copy span { font-size: 10px; }
+      .continue-button { min-width: 112px; min-height: 42px; padding: 0 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <svg class="score-backdrop" viewBox="0 0 1400 340" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 110 C180 58 310 168 500 118 S820 62 1010 118 S1230 165 1400 100"/>
+      <path d="M0 124 C180 72 310 182 500 132 S820 76 1010 132 S1230 179 1400 114"/>
+      <path d="M0 138 C180 86 310 196 500 146 S820 90 1010 146 S1230 193 1400 128"/>
+      <path d="M0 152 C180 100 310 210 500 160 S820 104 1010 160 S1230 207 1400 142"/>
+      <path d="M0 166 C180 114 310 224 500 174 S820 118 1010 174 S1230 221 1400 156"/>
+      <text x="110" y="93" font-size="38">𝄞</text>
+      <text x="338" y="181" font-size="26">♪</text>
+      <text x="535" y="105" font-size="32">♩</text>
+      <text x="768" y="161" font-size="27">♫</text>
+      <text x="1090" y="105" font-size="34">𝄞</text>
+      <text x="1280" y="166" font-size="25">♪</text>
+    </svg>
+
+    <header class="topbar">
+      <a class="back-link" href="index.html">
+        <span class="back-icon" aria-hidden="true">←</span>
+        <span class="back-label" data-copy="back">返回乐谱长廊</span>
+      </a>
+      <div class="top-actions">
+        <button class="music-toggle" id="musicToggle" type="button" aria-label="播放背景音乐" aria-pressed="false" title="播放背景音乐">
+          <svg viewBox="0 0 28 28" aria-hidden="true">
+            <path d="M10 20.2V7.5l10-2.3v11.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <ellipse cx="7.3" cy="21" rx="3.7" ry="2.8" fill="currentColor"/>
+            <ellipse cx="17.3" cy="17" rx="3.7" ry="2.8" fill="currentColor"/>
+            <path class="music-slash" d="M4 4l20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <nav class="languages" aria-label="语言切换">
+          <button class="language" type="button" data-language="en" aria-pressed="false">EN</button>
+          <span>/</span>
+          <button class="language" type="button" data-language="zh" aria-pressed="true">中文</button>
+        </nav>
+      </div>
+    </header>
+
+    <section class="intro">
+      <p class="eyebrow" data-copy="eyebrow">第二幕 · 选择陪听者</p>
+      <h1 data-copy="title">今晚，和谁一起听？</h1>
+      <p class="intro-copy" data-copy="subtitle">第一版由莫扎特、巴赫和贝多芬接入知识库 Agent，其他音乐家暂时开放视角预览。</p>
+      <button class="random-button" id="randomButton" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h3.5c4.5 0 4.5 10 9 10H20m0 0-3-3m3 3-3 3M4 17h3.5c1.8 0 2.9-1.6 4-3.6M15 7h5m0 0-3-3m3 3-3 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span data-copy="random">Tuning In 为我推荐</span>
+      </button>
+    </section>
+
+    <section class="artist-grid" id="artistGrid" aria-label="音乐家选择列表"></section>
+
+    <section class="selection-dock" aria-label="已选择的陪听者">
+      <div class="selection-copy">
+        <strong id="selectionTitle">还可以选择三位</strong>
+        <span id="selectionHint">点击头像卡片，组成今晚的陪听小组</span>
+      </div>
+      <div class="selected-portraits" id="selectedPortraits" aria-hidden="true"></div>
+      <button class="continue-button" id="continueButton" type="button" disabled data-copy="continue">确认这三位</button>
+    </section>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <audio id="bgm" preload="auto" src="assets/audio/home/tuning-in-jazz-intro.mp3?v=20260829-17"></audio>
+  </main>
+
+  <script>
+    const musicians = [
+      { id: 'chopin', nameZh: '肖邦', nameEn: 'Frédéric Chopin', image: 'musicians/cartoons/web-cutouts/06-chopin-v4.png?v=20260828-5', viewZh: '在钢琴呼吸与微妙时间里听见独白', viewEn: 'Hears inward speech in piano breath and flexible time' },
+      { id: 'bach', nameZh: '巴赫', nameEn: 'J. S. Bach', image: 'musicians/cartoons/web-cutouts/07-bach.png', viewZh: '沿着声部寻找秩序与回响', viewEn: 'Follows each voice toward order and resonance' },
+      { id: 'mozart', nameZh: '莫扎特', nameEn: 'Mozart', image: 'musicians/cartoons/web-cutouts/08-mozart.png', viewZh: '把旋律听成鲜活的人物对白', viewEn: 'Hears melody as lively theatrical conversation' },
+      { id: 'beethoven', nameZh: '贝多芬', nameEn: 'Beethoven', image: 'musicians/cartoons/web-cutouts/09-beethoven.png', viewZh: '在冲突与突破中追问命运', viewEn: 'Listens for resistance, conflict, and breakthrough' },
+      { id: 'scott-joplin', nameZh: '斯科特·乔普林', nameEn: 'Scott Joplin', image: 'musicians/cartoons/web-cutouts/10-scott-joplin.png', viewZh: '用切分节奏唤醒身体', viewEn: 'Brings the body alive through syncopation' },
+      { id: 'guan-pinghu', nameZh: '管平湖', nameEn: 'Guan Pinghu', image: 'musicians/cartoons/web-cutouts/01-guan-pinghu-v6.png?v=20260828-9', viewZh: '从古琴余韵与留白寻找时间', viewEn: 'Hears time through guqin resonance and silence' },
+      { id: 'liu-dehai', nameZh: '刘德海', nameEn: 'Liu Dehai', image: 'musicians/cartoons/web-cutouts/02-liu-dehai-v6.png?v=20260828-9', viewZh: '从琵琶颗粒与张力听见叙事', viewEn: 'Finds narrative in pipa articulation and tension' },
+      { id: 'feng-zicun', nameZh: '冯子存', nameEn: 'Feng Zicun', image: 'musicians/cartoons/web-cutouts/03-feng-zicun-v4.png?v=20260828-5', viewZh: '沿竹笛气息与装饰音寻找活力', viewEn: 'Follows dizi breath and ornament into movement' },
+      { id: 'abing', nameZh: '阿炳', nameEn: 'Abing', image: 'musicians/cartoons/web-cutouts/04-abing.png', viewZh: '从弓弦里听见人间冷暖', viewEn: 'Finds human warmth and hardship in bowed strings' },
+      { id: 'xian-xinghai', nameZh: '冼星海', nameEn: 'Xian Xinghai', image: 'musicians/cartoons/web-cutouts/05-xian-xinghai.png', viewZh: '让节奏汇成共同的力量', viewEn: 'Turns rhythm into shared strength' }
+    ];
+
+    const copy = {
+      zh: {
+        back: '返回乐谱长廊', eyebrow: '第二幕 · 选择陪听者', title: '今晚，和谁一起听？',
+        subtitle: '第一版由莫扎特、巴赫和贝多芬接入知识库 Agent，其他音乐家暂时开放视角预览。',
+        random: 'Tuning In 为我推荐', continue: '确认这三位', remaining: (count) => `还可以选择${count}位智能陪听者`,
+        complete: '三位陪听者已经到齐', hint: '点击头像卡片，组成今晚的陪听小组',
+        ready: '可以开始今晚的共听了', limit: '今晚先邀请三位，取消一位后可以重新选择。',
+        confirmed: '三位陪听者已就位，下一场景即将开启。', selected: '已选择'
+      },
+      en: {
+        back: 'Back to the score', eyebrow: 'Act II · Choose companions', title: 'Who will listen with you tonight?',
+        subtitle: 'In this first version, Mozart, Bach, and Beethoven use knowledge-backed agents. The others remain available as perspective previews.',
+        random: 'Let Tuning In recommend', continue: 'Confirm companions', remaining: (count) => `${count} intelligent listener${count === 1 ? '' : 's'} remaining`,
+        complete: 'Your listening trio is ready', hint: 'Select portrait cards to form tonight’s listening circle',
+        ready: 'Everything is ready for the listening room', limit: 'Choose up to three companions for tonight.',
+        confirmed: 'Your three companions are ready. The next scene is coming soon.', selected: 'Selected'
+      }
+    };
+
+    const artistGrid = document.getElementById('artistGrid');
+    const selectedPortraits = document.getElementById('selectedPortraits');
+    const selectionTitle = document.getElementById('selectionTitle');
+    const selectionHint = document.getElementById('selectionHint');
+    const continueButton = document.getElementById('continueButton');
+    const randomButton = document.getElementById('randomButton');
+    const toast = document.getElementById('toast');
+    const musicToggle = document.getElementById('musicToggle');
+    const bgm = document.getElementById('bgm');
+    const languageButtons = [...document.querySelectorAll('.language')];
+    const cards = [];
+    const smartIds = new Set(['mozart', 'bach', 'beethoven']);
+    let language = localStorage.getItem('tuningLanguage') || 'zh';
+    let selected = [];
+    let toastTimer;
+
+    try {
+      const stored = JSON.parse(localStorage.getItem('tuningCompanions') || '[]');
+      const availableIds = new Set(musicians.map((musician) => musician.id));
+      selected = stored.filter((id) => availableIds.has(id)).slice(0, 3);
+    } catch {
+      selected = [];
+    }
+
+    function buildCards() {
+      musicians.forEach((musician, index) => {
+        const card = document.createElement('button');
+        card.className = 'artist-card';
+        card.type = 'button';
+        card.dataset.id = musician.id;
+        const isSmart = smartIds.has(musician.id);
+        card.classList.toggle('is-smart', isSmart);
+        card.classList.toggle('is-preview', !isSmart);
+        card.style.setProperty('--card-index', index);
+        card.innerHTML = `
+          <span class="capability-badge">${isSmart ? '知识库 Agent' : '视角预览'}</span>
+          <span class="selection-order" aria-hidden="true"></span>
+          <span class="portrait"><img src="${musician.image}" alt="${musician.nameZh}卡通头像" draggable="false"></span>
+          <span class="artist-meta">
+            <span class="artist-name">${musician.nameZh}<span class="artist-name-en">${musician.nameEn}</span></span>
+            <span class="artist-view"></span>
+          </span>
+        `;
+        card.addEventListener('click', () => toggleMusician(musician.id));
+        artistGrid.appendChild(card);
+        cards.push(card);
+      });
+    }
+
+    function toggleMusician(id) {
+      if (selected.includes(id)) {
+        selected = selected.filter((selectedId) => selectedId !== id);
+      } else if (selected.length < 3) {
+        selected.push(id);
+      } else {
+        showToast(copy[language].limit);
+        return;
+      }
+      persistSelection();
+      renderSelection();
+    }
+
+    function randomizeSelection() {
+      selected = ['mozart', 'bach', 'beethoven'];
+      persistSelection();
+      renderSelection(true);
+    }
+
+    function persistSelection() {
+      localStorage.setItem('tuningCompanions', JSON.stringify(selected));
+    }
+
+    function renderSelection(reveal = false) {
+      cards.forEach((card) => {
+        const selectedIndex = selected.indexOf(card.dataset.id);
+        const isSelected = selectedIndex !== -1;
+        card.classList.toggle('is-selected', isSelected);
+        card.classList.toggle('is-muted', selected.length === 3 && !isSelected);
+        card.setAttribute('aria-pressed', String(isSelected));
+        card.setAttribute('aria-label', `${isSelected ? copy[language].selected : ''}${musicians.find((musician) => musician.id === card.dataset.id)[language === 'zh' ? 'nameZh' : 'nameEn']}`);
+        card.querySelector('.selection-order').textContent = isSelected ? String(selectedIndex + 1) : '';
+        card.classList.remove('is-revealing');
+        if (reveal && isSelected) {
+          card.style.animationDelay = `${selectedIndex * 90}ms`;
+          requestAnimationFrame(() => card.classList.add('is-revealing'));
+        }
+      });
+
+      selectedPortraits.replaceChildren();
+      selected.forEach((id) => {
+        const musician = musicians.find((item) => item.id === id);
+        const mini = document.createElement('span');
+        mini.className = 'selected-mini';
+        mini.innerHTML = `<img src="${musician.image}" alt="">`;
+        selectedPortraits.appendChild(mini);
+      });
+      for (let index = selected.length; index < 3; index += 1) {
+        const empty = document.createElement('span');
+        empty.className = 'selected-empty';
+        selectedPortraits.appendChild(empty);
+      }
+
+      const remaining = 3 - selected.length;
+      selectionTitle.textContent = remaining ? copy[language].remaining(remaining) : copy[language].complete;
+      selectionHint.textContent = remaining ? copy[language].hint : copy[language].ready;
+      continueButton.disabled = selected.length !== 3;
+    }
+
+    function setLanguage(nextLanguage) {
+      language = nextLanguage;
+      localStorage.setItem('tuningLanguage', language);
+      document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
+      languageButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.language === language)));
+      document.querySelectorAll('[data-copy]').forEach((element) => {
+        const value = copy[language][element.dataset.copy];
+        if (typeof value === 'string') element.textContent = value;
+      });
+      cards.forEach((card) => {
+        const musician = musicians.find((item) => item.id === card.dataset.id);
+        card.querySelector('.artist-name').childNodes[0].textContent = language === 'zh' ? musician.nameZh : musician.nameEn;
+        card.querySelector('.artist-name-en').textContent = language === 'zh' ? musician.nameEn : musician.nameZh;
+        card.querySelector('.artist-view').textContent = language === 'zh' ? musician.viewZh : musician.viewEn;
+        card.querySelector('.capability-badge').textContent = smartIds.has(musician.id)
+          ? (language === 'zh' ? '知识库 Agent' : 'Knowledge agent')
+          : (language === 'zh' ? '视角预览' : 'Perspective preview');
+      });
+      renderSelection();
+    }
+
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add('is-visible');
+      toastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 2400);
+    }
+
+    async function toggleMusic() {
+      if (bgm.paused) {
+        try {
+          await bgm.play();
+        } catch {
+          return;
+        }
+      } else {
+        bgm.pause();
+      }
+      updateMusicButton();
+    }
+
+    function updateMusicButton() {
+      const playing = !bgm.paused;
+      musicToggle.classList.toggle('is-playing', playing);
+      musicToggle.setAttribute('aria-pressed', String(playing));
+      musicToggle.setAttribute('aria-label', playing ? '暂停背景音乐' : '播放背景音乐');
+      musicToggle.title = playing ? '暂停背景音乐' : '播放背景音乐';
+    }
+
+    function restoreMusicState() {
+      const savedTime = Number(sessionStorage.getItem('tuningMusicTime') || 0);
+      const shouldResume = sessionStorage.getItem('tuningMusicPlaying') === 'true';
+      const seek = () => {
+        if (Number.isFinite(savedTime) && savedTime > 0 && Number.isFinite(bgm.duration)) {
+          bgm.currentTime = Math.min(savedTime, Math.max(0, bgm.duration - .2));
+        }
+        if (shouldResume) bgm.play().catch(() => updateMusicButton());
+      };
+      if (bgm.readyState >= 1) seek();
+      else bgm.addEventListener('loadedmetadata', seek, { once: true });
+    }
+
+    randomButton.addEventListener('click', randomizeSelection);
+    continueButton.addEventListener('click', () => {
+      if (selected.length !== 3) return;
+      localStorage.setItem('tuningCompanions', JSON.stringify(selected));
+      window.location.href = 'listening-room.html';
+    });
+    languageButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.language)));
+    musicToggle.addEventListener('click', toggleMusic);
+    bgm.addEventListener('play', updateMusicButton);
+    bgm.addEventListener('pause', updateMusicButton);
+    bgm.addEventListener('ended', updateMusicButton);
+
+    buildCards();
+    if (localStorage.getItem('tuningSelectionMode') === 'recommend') randomizeSelection();
+    setLanguage(language);
+    bgm.volume = .4;
+    restoreMusicState();
+  </script>
+</body>
+</html>

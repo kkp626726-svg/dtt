@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">知音原创曲库播放封面</title>
+  <desc id="desc">淡黄色纸张背景上的流动五线谱与音符</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8efcf"/>
+      <stop offset=".52" stop-color="#ead9a7"/>
+      <stop offset="1" stop-color="#c9ae72"/>
+    </linearGradient>
+    <radialGradient id="light" cx="50%" cy="42%" r="52%">
+      <stop offset="0" stop-color="#fff9df" stop-opacity=".86"/>
+      <stop offset="1" stop-color="#fff9df" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="16"/></filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#paper)"/>
+  <rect width="1600" height="900" fill="url(#light)"/>
+  <g fill="none" stroke="#645237" stroke-width="5" opacity=".56">
+    <path d="M-60 360C250 210 430 500 760 350s560-50 900-170"/>
+    <path d="M-60 382C250 232 430 522 760 372s560-50 900-170"/>
+    <path d="M-60 404C250 254 430 544 760 394s560-50 900-170"/>
+    <path d="M-60 426C250 276 430 566 760 416s560-50 900-170"/>
+    <path d="M-60 448C250 298 430 588 760 438s560-50 900-170"/>
+  </g>
+  <g fill="#52432e" opacity=".76">
+    <ellipse cx="290" cy="363" rx="18" ry="13" transform="rotate(-18 290 363)"/><rect x="305" y="278" width="7" height="88" rx="3"/>
+    <ellipse cx="507" cy="468" rx="18" ry="13" transform="rotate(-18 507 468)"/><rect x="522" y="382" width="7" height="89" rx="3"/>
+    <ellipse cx="820" cy="376" rx="18" ry="13" transform="rotate(-18 820 376)"/><rect x="835" y="290" width="7" height="90" rx="3"/>
+    <ellipse cx="1058" cy="326" rx="18" ry="13" transform="rotate(-18 1058 326)"/><rect x="1073" y="240" width="7" height="90" rx="3"/>
+    <ellipse cx="1270" cy="255" rx="18" ry="13" transform="rotate(-18 1270 255)"/><rect x="1285" y="170" width="7" height="89" rx="3"/>
+  </g>
+  <circle cx="800" cy="430" r="190" fill="#fff4c9" opacity=".18" filter="url(#soft)"/>
+  <text x="800" y="650" text-anchor="middle" fill="#4f4434" font-family="Georgia, serif" font-size="48" letter-spacing="14">LISTENING LIBRARY</text>
+  <text x="800" y="710" text-anchor="middle" fill="#756247" font-family="serif" font-size="29" letter-spacing="10">让音乐家陪你听见不同的世界</text>
+</svg>

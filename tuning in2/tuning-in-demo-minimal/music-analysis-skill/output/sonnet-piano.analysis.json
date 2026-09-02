@@ -1,0 +1,499 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-29T12:56:05.014Z",
+  "piece": {
+    "piece_id": "sonnet-piano",
+    "title": "Sonnet",
+    "composer": null,
+    "audio_path": "知音-web-deploy/assets/audio/library/sonnet.mp3",
+    "duration_seconds": 218.24,
+    "source_piece_path": "knowledge/pieces/sonnet-piano.json"
+  },
+  "analysis_status": "draft_ai_enriched",
+  "local_analysis": {
+    "toolchain": [
+      "ffprobe",
+      "ffmpeg",
+      "zhiyin-local-signal-analyzer"
+    ],
+    "metadata": {
+      "duration_seconds": 218.24,
+      "source_sample_rate": 44100,
+      "source_channels": 2,
+      "codec_name": "mp3"
+    },
+    "analysis_sample_rate": 8000,
+    "window_seconds": 2,
+    "track_metrics": {
+      "loudness_p10_db": -42.875,
+      "loudness_median_db": -23.385,
+      "loudness_p90_db": -18.308,
+      "dynamic_range_db": 24.567,
+      "average_silence_ratio": 0.206
+    }
+  },
+  "whole_work": {
+    "measured_arc": [
+      {
+        "start_time": 0,
+        "stage": "开场",
+        "relative_energy": 0.488
+      },
+      {
+        "start_time": 30,
+        "stage": "推进",
+        "relative_energy": 0.718
+      },
+      {
+        "start_time": 56,
+        "stage": "推进",
+        "relative_energy": 0.775
+      },
+      {
+        "start_time": 82,
+        "stage": "推进",
+        "relative_energy": 0.684
+      },
+      {
+        "start_time": 108,
+        "stage": "高点",
+        "relative_energy": 0.91
+      },
+      {
+        "start_time": 130,
+        "stage": "延续",
+        "relative_energy": 0.715
+      },
+      {
+        "start_time": 160,
+        "stage": "延续",
+        "relative_energy": 0.733
+      },
+      {
+        "start_time": 196,
+        "stage": "收束",
+        "relative_energy": -0.199
+      }
+    ],
+    "loudest_stage": "高点",
+    "loudest_time": 108,
+    "quietest_stage": "收束",
+    "quietest_time": 196,
+    "audible_arc": "全曲由单薄的钢琴单音开场，经过数次响度的起伏变化，在中段达到高潮，随后进入延续与平稳，最后在大幅减弱和长收束中结束。",
+    "main_material": [
+      "钢琴单音与连奏旋律"
+    ],
+    "texture": [
+      "单一钢琴伴奏与旋律线条"
+    ],
+    "beginner_summary": "这是一首平静的钢琴独奏曲，旋律像说话般起伏，中段稍强后归于安静。",
+    "interpretation_boundaries": [
+      "本地信号分析不能确认作曲者意图",
+      "本地信号分析不能独立确认旋律、和声、调性、曲式或具体演奏技法",
+      "无法从声音确定具体的故事情节或创作意图"
+    ]
+  },
+  "segments": [
+    {
+      "segment_id": "sonnet-piano-auto-01",
+      "start_time": 0,
+      "end_time": 30,
+      "stage": "开场",
+      "signal_metrics": {
+        "average_loudness_db": -30.888,
+        "relative_energy": 0.488,
+        "loudness_trend_db": 7.564,
+        "silence_ratio": 0.218
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "注意听开头的轻柔钢琴声，并留意声音是如何逐渐变强的。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "sonnet-piano-auto-02",
+      "start_time": 30,
+      "end_time": 56,
+      "stage": "推进",
+      "signal_metrics": {
+        "average_loudness_db": -25.244,
+        "relative_energy": 0.718,
+        "loudness_trend_db": -7.2,
+        "silence_ratio": 0.145
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "整体响度接近全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "感受钢琴声音由强渐弱的下行趋势。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "sonnet-piano-auto-03",
+      "start_time": 56,
+      "end_time": 82,
+      "stage": "推进",
+      "signal_metrics": {
+        "average_loudness_db": -23.834,
+        "relative_energy": 0.775,
+        "loudness_trend_db": -8.835,
+        "silence_ratio": 0.132
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "整体响度接近全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "聆听旋律的持续延展与逐渐收小的音量。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "sonnet-piano-auto-04",
+      "start_time": 82,
+      "end_time": 108,
+      "stage": "推进",
+      "signal_metrics": {
+        "average_loudness_db": -26.078,
+        "relative_energy": 0.684,
+        "loudness_trend_db": -3.415,
+        "silence_ratio": 0.158
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "注意声音转弱并保持平稳流动的过程。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "sonnet-piano-auto-05",
+      "start_time": 108,
+      "end_time": 130,
+      "stage": "高点",
+      "signal_metrics": {
+        "average_loudness_db": -20.522,
+        "relative_energy": 0.91,
+        "loudness_trend_db": 5.338,
+        "silence_ratio": 0.107
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度高于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "整体响度高于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更响，声音正在抬升",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "辨认全曲声音最饱满、最强的乐句。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "sonnet-piano-auto-06",
+      "start_time": 130,
+      "end_time": 160,
+      "stage": "延续",
+      "signal_metrics": {
+        "average_loudness_db": -25.302,
+        "relative_energy": 0.715,
+        "loudness_trend_db": -1.392,
+        "silence_ratio": 0.143
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "整体响度接近全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "感受高潮过后平稳的音乐过渡。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "sonnet-piano-auto-07",
+      "start_time": 160,
+      "end_time": 196,
+      "stage": "延续",
+      "signal_metrics": {
+        "average_loudness_db": -24.86,
+        "relative_energy": 0.733,
+        "loudness_trend_db": 0.48,
+        "silence_ratio": 0.113
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度接近全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中的声音活动较连续",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "整体响度接近全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段前后的响度变化不大",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "声音活动较连续",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "聆听钢琴声在稳定的音量中维持的旋律线条。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    },
+    {
+      "segment_id": "sonnet-piano-auto-08",
+      "start_time": 196,
+      "end_time": 218.24,
+      "stage": "收束",
+      "signal_metrics": {
+        "average_loudness_db": -47.763,
+        "relative_energy": -0.199,
+        "loudness_trend_db": -28.373,
+        "silence_ratio": 0.7
+      },
+      "audible_evidence": [
+        {
+          "claim": "这一段的整体响度低于全曲中间水平",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "measured"
+        },
+        {
+          "claim": "片段中较轻或接近停顿的空间较多",
+          "evidence_type": "measured"
+        }
+      ],
+      "semantic_observations": [
+        {
+          "claim": "整体响度低于全曲中间水平",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段后部比开头更轻，声音正在回落",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        },
+        {
+          "claim": "片段中较轻或接近停顿的空间较多",
+          "evidence_type": "model_observation",
+          "review_status": "needs_human_review"
+        }
+      ],
+      "listen_for": "注意声音逐渐减弱直至完全结束的余音。",
+      "confidence": 0.9,
+      "review_status": "needs_human_review",
+      "uncertain_claims": []
+    }
+  ],
+  "persona_runtime": {
+    "strategy": "shared_evidence_dynamic_rendering",
+    "stores_fixed_persona_answers": false,
+    "supported_musicians": [
+      "mozart",
+      "bach",
+      "beethoven"
+    ],
+    "lens_reference": "music-analysis-skill/references/persona-lenses.md"
+  },
+  "comparison_reference": {
+    "existing_segment_count": 9,
+    "path": "knowledge/pieces/sonnet-piano.json"
+  },
+  "review": {
+    "required": true,
+    "reviewer": null,
+    "reviewed_at": null,
+    "notes": []
+  },
+  "ai_enrichment": {
+    "model": "gemini-3.5-flash-lite-free",
+    "generated_at": "2026-08-29T12:56:17.646Z",
+    "request_count": 1
+  }
+}

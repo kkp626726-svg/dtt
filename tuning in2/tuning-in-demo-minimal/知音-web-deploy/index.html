@@ -1,0 +1,1416 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="陪你欣赏音乐的 AI 音乐家互动首页">
+  <title>Tuning In · AI 音乐家</title>
+  <style>
+    :root {
+      --ink: #3d3932;
+      --muted: #746d60;
+      --paper: #f3e7c4;
+      --paper-light: #fbf4dc;
+      --staff: #938b7b;
+      --accent: #b49145;
+      --accent-light: #ead79d;
+      --bubble: #3d3a34;
+      --cycle-width: 4600px;
+      --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --font-display: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-ui);
+      font-weight: 400;
+    }
+
+    body { overflow: hidden; }
+
+    button { font: inherit; }
+
+    .page {
+      position: relative;
+      min-height: 100svh;
+      overflow: hidden;
+      isolation: isolate;
+      background-color: var(--paper);
+      background-image:
+        radial-gradient(circle at 18% 14%, rgba(255, 255, 255, .62), transparent 34%),
+        radial-gradient(circle at 82% 76%, rgba(166, 126, 54, .09), transparent 36%),
+        repeating-linear-gradient(8deg, rgba(111, 87, 43, .025) 0 1px, transparent 1px 7px),
+        repeating-linear-gradient(96deg, rgba(255, 255, 255, .16) 0 1px, transparent 1px 11px);
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: .42;
+      background-image:
+        radial-gradient(circle at 22% 30%, rgba(92, 67, 26, .08) 0 .7px, transparent .9px),
+        radial-gradient(circle at 68% 62%, rgba(255, 255, 255, .35) 0 .8px, transparent 1px);
+      background-size: 15px 17px, 19px 21px;
+      mix-blend-mode: multiply;
+    }
+
+    .header {
+      position: absolute;
+      z-index: 40;
+      top: clamp(28px, 5vh, 54px);
+      left: clamp(24px, 4vw, 66px);
+      right: clamp(24px, 4vw, 66px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .brand { max-width: min(820px, 74vw); }
+
+    .act-label {
+      margin: 0 0 12px;
+      color: #8d7138;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(44px, 4.6vw, 76px);
+      font-family: var(--font-display);
+      font-weight: 500;
+      line-height: .94;
+      letter-spacing: -.055em;
+    }
+
+    .brand p {
+      max-width: 720px;
+      margin: 15px 0 0;
+      color: #534d43;
+      font-size: clamp(14px, 1.25vw, 20px);
+      line-height: 1.6;
+      letter-spacing: .025em;
+    }
+
+    .brand .value-title {
+      max-width: 760px;
+      margin-top: 18px;
+      color: #423d34;
+      font-family: var(--font-display);
+      font-size: clamp(18px, 1.55vw, 25px);
+      font-weight: 600;
+      line-height: 1.45;
+      letter-spacing: 0;
+    }
+
+    .brand .value-copy {
+      max-width: 690px;
+      margin-top: 6px;
+      color: #6b6356;
+      font-size: clamp(13px, 1vw, 16px);
+      line-height: 1.65;
+      letter-spacing: .01em;
+    }
+
+    html[lang="en"] .brand { max-width: min(1540px, calc(100vw - 48px)); }
+    html[lang="en"] .brand h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 500; letter-spacing: -.045em; }
+    html[lang="en"] .brand .value-title { max-width: 830px; font-size: clamp(17px, 1.45vw, 23px); line-height: 1.42; }
+    html[lang="en"] .brand .value-copy {
+      max-width: none;
+      white-space: nowrap;
+      font-size: clamp(10.5px, .82vw, 15px);
+      line-height: 1.45;
+      letter-spacing: 0;
+    }
+
+    .languages {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      pointer-events: auto;
+      font-size: clamp(13px, 1vw, 17px);
+    }
+
+    .language {
+      appearance: none;
+      border: 0;
+      border-bottom: 1px solid transparent;
+      padding: 3px 0;
+      color: var(--ink);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .language[aria-pressed="true"] { border-bottom-color: currentColor; }
+
+    .stage {
+      position: absolute;
+      z-index: 5;
+      top: clamp(170px, 21vh, 220px);
+      left: 0;
+      width: 100%;
+      height: min(64vh, 610px);
+      min-height: 500px;
+      overflow: hidden;
+      cursor: grab;
+      touch-action: pan-y;
+      user-select: none;
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+    }
+
+    .stage.is-dragging { cursor: grabbing; }
+
+    .moving-strip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: calc(var(--cycle-width) * 2);
+      height: 100%;
+      will-change: transform;
+    }
+
+    .staff-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .staff-line {
+      fill: none;
+      stroke: var(--staff);
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      opacity: .72;
+    }
+
+    .score-symbol {
+      position: absolute;
+      z-index: 2;
+      color: #6f685d;
+      font-family: "Apple Symbols", "Times New Roman", serif;
+      line-height: 1;
+      pointer-events: none;
+      opacity: .88;
+    }
+
+    .score-symbol.accent { color: var(--accent); opacity: .8; }
+
+    .bar-line {
+      stroke: #7f776a;
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      opacity: .68;
+    }
+
+    .measure-note-head {
+      fill: #686156;
+      opacity: .9;
+    }
+
+    .measure-note-stem,
+    .measure-note-beam,
+    .measure-ledger-line,
+    .measure-expression-line {
+      fill: none;
+      stroke: #686156;
+      stroke-linecap: round;
+      opacity: .9;
+    }
+
+    .measure-note-stem { stroke-width: 2.4; }
+    .measure-note-beam { stroke-width: 6.5; }
+    .measure-ledger-line { stroke-width: 2; }
+    .measure-expression-line { stroke-width: 1.8; opacity: .58; }
+
+    .music-boat {
+      position: absolute;
+      z-index: 2;
+      width: 150px;
+      height: 94px;
+      color: #776f63;
+      pointer-events: none;
+      opacity: .82;
+    }
+
+    .artist-slot {
+      position: absolute;
+      z-index: 8;
+      width: clamp(190px, 14vw, 232px);
+      height: clamp(190px, 14vw, 232px);
+      margin-left: clamp(-116px, -7vw, -95px);
+      animation: musician-float 4.8s ease-in-out infinite;
+      will-change: transform;
+    }
+
+    .artist {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      border: 0;
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+      transform: translateZ(0) scale(1);
+      transition: transform .34s cubic-bezier(.2, .8, .2, 1), filter .34s ease;
+      outline: none;
+    }
+
+    .artist::before,
+    .artist::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: 11%;
+      border-radius: 50%;
+      opacity: 0;
+      transform: scale(.72);
+      transition: opacity .34s ease, transform .42s cubic-bezier(.2, .8, .2, 1);
+      pointer-events: none;
+    }
+
+    .artist::before {
+      border: 2px solid rgba(190, 151, 62, .72);
+      box-shadow:
+        0 0 20px rgba(211, 174, 84, .42),
+        0 0 52px rgba(227, 195, 113, .28),
+        inset 0 0 24px rgba(255, 244, 197, .38);
+    }
+
+    .artist::after {
+      inset: 2%;
+      border: 1px solid rgba(222, 190, 112, .45);
+      filter: blur(.2px);
+    }
+
+    .artist:hover,
+    .artist:focus-visible,
+    .artist.is-selected {
+      z-index: 20;
+      transform: translateY(-10px) scale(1.17);
+      filter: saturate(1.08) contrast(1.02);
+    }
+
+    .artist:hover::before,
+    .artist:hover::after,
+    .artist:focus-visible::before,
+    .artist:focus-visible::after,
+    .artist.is-selected::before,
+    .artist.is-selected::after {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .artist:focus-visible::before { border-width: 3px; }
+
+    .artist img {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      filter: drop-shadow(0 10px 7px rgba(86, 65, 31, .08));
+    }
+
+    .artist[data-index="0"] img,
+    .artist[data-index="1"] img { filter: none; }
+
+    .artist-dialog {
+      position: fixed;
+      z-index: 80;
+      width: min(340px, calc(100vw - 32px));
+      max-height: calc(100vh - 28px);
+      padding: 20px 46px 20px 22px;
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 15px;
+      color: #fffdf5;
+      background: rgba(57, 54, 48, .97);
+      box-shadow: 0 20px 60px rgba(67, 50, 23, .22);
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(215, 188, 120, .55) transparent;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px) scale(.97);
+      transition: opacity .22s ease, transform .22s ease, visibility .22s;
+    }
+
+    .artist-dialog.is-open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .artist-dialog::after {
+      content: "";
+      position: absolute;
+      left: var(--pointer-left, 50%);
+      bottom: -9px;
+      width: 18px;
+      height: 18px;
+      border-right: 1px solid rgba(255, 255, 255, .08);
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      background: #393630;
+      transform: translateX(-50%) rotate(45deg);
+    }
+
+    .artist-dialog.is-below::after {
+      top: -9px;
+      bottom: auto;
+      border: 0;
+      border-left: 1px solid rgba(255, 255, 255, .08);
+      border-top: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .artist-dialog.is-side::after { display: none; }
+
+    .dialog-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 50%;
+      color: #d9d1c0;
+      background: transparent;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .dialog-close:hover,
+    .dialog-close:focus-visible {
+      color: #fff;
+      background: rgba(255, 255, 255, .08);
+      outline: none;
+    }
+
+    .dialog-kicker {
+      margin: 0 0 4px;
+      color: #d7bc78;
+      font-size: 12px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .dialog-title {
+      margin: 0;
+      font-size: 25px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+
+    .dialog-name-en {
+      display: block;
+      margin-top: 3px;
+      color: #c9c1b1;
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .dialog-intro {
+      margin: 13px 0 0;
+      color: #d8d2c6;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .dialog-greeting {
+      margin: 14px 0 0;
+      padding-top: 13px;
+      border-top: 1px solid rgba(255, 255, 255, .13);
+      color: #fff7df;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .dialog-work {
+      margin: 11px 0 0;
+      color: #d7bc78;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .dialog-repertoire {
+      margin: 11px 0 0;
+      color: #eee4cf;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .dialog-repertoire strong {
+      color: #d7bc78;
+      font-weight: 500;
+    }
+
+    .dialog-work.is-unavailable { color: #d9b1a5; }
+
+    .dialog-example {
+      margin: 14px 0 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(234, 215, 157, .25);
+      border-radius: 12px;
+      color: #f5e6b5;
+      background: rgba(255,255,255,.045);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .dialog-example::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 4px;
+      color: #bda66c;
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .footer {
+      position: absolute;
+      z-index: 40;
+      left: clamp(24px, 4vw, 66px);
+      right: clamp(24px, 4vw, 66px);
+      bottom: clamp(22px, 4vh, 42px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      min-width: 0;
+    }
+
+    .music-toggle {
+      position: relative;
+      flex: 0 0 auto;
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border: 1.25px solid rgba(61, 57, 50, .72);
+      border-radius: 50%;
+      color: var(--ink);
+      background: rgba(255, 250, 231, .38);
+      box-shadow: 0 8px 24px rgba(91, 68, 29, .06);
+      cursor: pointer;
+      transition: color .25s ease, background-color .25s ease, border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+    }
+
+    .music-toggle:hover,
+    .music-toggle:focus-visible {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    .music-toggle.is-playing {
+      color: #fff9e8;
+      border-color: var(--accent);
+      background: var(--accent);
+      box-shadow: 0 0 0 7px rgba(180, 145, 69, .12), 0 10px 30px rgba(116, 82, 24, .18);
+    }
+
+    .music-toggle svg {
+      width: 25px;
+      height: 25px;
+      overflow: visible;
+    }
+
+    .music-toggle .music-slash {
+      opacity: 1;
+      transition: opacity .2s ease;
+    }
+
+    .music-toggle.is-playing .music-slash { opacity: 0; }
+
+    .music-toggle.is-playing::after {
+      content: "";
+      position: absolute;
+      inset: -7px;
+      border: 1px solid rgba(180, 145, 69, .5);
+      border-radius: 50%;
+      animation: music-pulse 2.4s ease-out infinite;
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(13px, 1vw, 17px);
+      letter-spacing: .02em;
+    }
+
+    .entry-actions { display: flex; align-items: center; gap: 10px; }
+
+    .enter {
+      min-width: 162px;
+      padding: 13px 25px;
+      border: 1.25px solid var(--ink);
+      border-radius: 999px;
+      color: var(--ink);
+      background: rgba(255, 250, 231, .24);
+      cursor: pointer;
+      transition: color .2s ease, background-color .2s ease, transform .2s ease;
+    }
+
+    .enter.primary { color: #fffdf4; background: var(--ink); }
+    .enter.secondary { min-width: 132px; border-color: rgba(61,57,50,.35); }
+
+    .enter:hover,
+    .enter:focus-visible {
+      color: #fffdf4;
+      background: var(--ink);
+      transform: translateY(-2px);
+      outline: none;
+    }
+
+    @keyframes musician-float {
+      0%, 100% { transform: translateY(0) rotate(-.35deg); }
+      50% { transform: translateY(-9px) rotate(.35deg); }
+    }
+
+    @keyframes music-pulse {
+      0% { opacity: .8; transform: scale(.84); }
+      70%, 100% { opacity: 0; transform: scale(1.2); }
+    }
+
+    @media (max-width: 760px) {
+      body { overflow-y: auto; }
+      .page { min-height: 780px; }
+      .header { top: 26px; }
+      .brand { max-width: 78vw; }
+      .brand h1 { font-size: 45px; }
+      .brand p { margin-top: 11px; font-size: 13px; }
+      .stage { top: 190px; height: 500px; min-height: 500px; }
+      .artist-slot { width: 188px; height: 188px; margin-left: -94px; }
+      .footer { bottom: 24px; }
+      .footer-left { gap: 10px; }
+      .music-toggle { width: 46px; height: 46px; }
+      .hint { max-width: 190px; }
+      .entry-actions { gap: 7px; }
+      .enter { min-width: 118px; padding: 12px 15px; font-size: 12px; }
+    }
+
+    @media (max-width: 760px) {
+      html[lang="en"] .brand .value-copy { white-space: normal; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .artist-slot { animation: none; }
+      .artist,
+      .artist::before,
+      .artist::after,
+      .artist-dialog,
+      .enter { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div class="brand">
+        <div class="act-label" data-copy="act">第一幕 · 认识陪听者</div>
+        <h1>Tuning In</h1>
+        <p class="value-title" data-copy="valueTitle">听见一段音乐，却不知道为什么被打动？</p>
+        <p class="value-copy" data-copy="valueCopy">选择不同的陪听者，他们会从旋律、结构、情绪和人生经验中，带你重新听一次。</p>
+      </div>
+      <nav class="languages" aria-label="语言切换">
+        <button class="language" type="button" data-language="en" aria-pressed="false">EN</button>
+        <span>/</span>
+        <button class="language" type="button" data-language="zh" aria-pressed="true">中文</button>
+      </nav>
+    </header>
+
+    <section class="stage" id="stage" aria-label="可拖动浏览的 AI 音乐家五线谱">
+      <div class="moving-strip" id="movingStrip">
+        <svg class="staff-svg" id="staffSvg" aria-hidden="true"></svg>
+        <div id="decorations" aria-hidden="true"></div>
+        <div id="artists"></div>
+      </div>
+    </section>
+
+    <aside class="artist-dialog" id="artistDialog" role="dialog" aria-modal="false" aria-labelledby="dialogTitle" aria-hidden="true">
+      <button class="dialog-close" id="dialogClose" type="button" aria-label="关闭人物介绍">×</button>
+      <p class="dialog-kicker" data-copy="dialogKicker">今晚的陪听者</p>
+      <h2 class="dialog-title" id="dialogTitle">
+        <span id="dialogNameZh"></span>
+        <span class="dialog-name-en" id="dialogNameEn"></span>
+      </h2>
+      <p class="dialog-intro" id="dialogIntro"></p>
+      <p class="dialog-repertoire" id="dialogRepertoire"></p>
+      <p class="dialog-work" id="dialogWork"></p>
+      <p class="dialog-greeting" id="dialogGreeting"></p>
+      <p class="dialog-example" id="dialogExample" data-label="他会这样陪你听"></p>
+    </aside>
+
+    <footer class="footer">
+      <div class="footer-left">
+        <button class="music-toggle" id="musicToggle" type="button" aria-label="播放背景音乐" aria-pressed="false" title="播放背景音乐">
+          <svg viewBox="0 0 28 28" aria-hidden="true">
+            <path d="M10 20.2V7.5l10-2.3v11.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <ellipse cx="7.3" cy="21" rx="3.7" ry="2.8" fill="currentColor"/>
+            <ellipse cx="17.3" cy="17" rx="3.7" ry="2.8" fill="currentColor"/>
+            <path class="music-slash" d="M4 4l20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <p class="hint" data-copy="hint">左右拖动五线谱 · 点击音乐家，听听他想对你说什么。</p>
+      </div>
+      <div class="entry-actions">
+        <button class="enter secondary" id="manualEntry" type="button"><span data-copy="manualEntry">我自己选择</span></button>
+        <button class="enter primary" id="enter" type="button"><span data-copy="enter">Tuning In 为我推荐</span> →</button>
+      </div>
+    </footer>
+    <audio id="bgm" preload="auto" src="assets/audio/home/tuning-in-jazz-intro.mp3?v=20260829-17"></audio>
+  </main>
+
+  <script>
+    const cycleWidth = 4600;
+    const totalWidth = cycleWidth * 2;
+    const stage = document.getElementById('stage');
+    const movingStrip = document.getElementById('movingStrip');
+    const staffSvg = document.getElementById('staffSvg');
+    const artistsRoot = document.getElementById('artists');
+    const decorationsRoot = document.getElementById('decorations');
+    const artistDialog = document.getElementById('artistDialog');
+    const dialogClose = document.getElementById('dialogClose');
+    const dialogNameZh = document.getElementById('dialogNameZh');
+    const dialogNameEn = document.getElementById('dialogNameEn');
+    const dialogIntro = document.getElementById('dialogIntro');
+    const dialogRepertoire = document.getElementById('dialogRepertoire');
+    const dialogWork = document.getElementById('dialogWork');
+    const dialogGreeting = document.getElementById('dialogGreeting');
+    const dialogExample = document.getElementById('dialogExample');
+    const musicToggle = document.getElementById('musicToggle');
+    const manualEntry = document.getElementById('manualEntry');
+    const bgm = document.getElementById('bgm');
+    const languageButtons = [...document.querySelectorAll('[data-language]')];
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const musicians = [
+      {
+        nameZh: '管平湖', nameEn: 'Guan Pinghu', yearsZh: '近现代古琴家', yearsEn: 'Modern guqin master',
+        image: 'musicians/cartoons/web-cutouts/01-guan-pinghu-v6.png?v=20260828-9',
+        greetingZh: '先听弦外的余韵，再听手指落在哪里。', greetingEn: 'First hear the resonance beyond the string, then notice where the finger lands.',
+        introZh: '二十世纪重要古琴家，以打谱、演奏和传承连接古谱与现代听众，适合从音色、留白和气息谈音乐。',
+        introEn: 'A major twentieth-century guqin artist whose performance and score reconstruction connect old notation with modern listeners.'
+      },
+      {
+        nameZh: '刘德海', nameEn: 'Liu Dehai', yearsZh: '琵琶演奏家与教育家', yearsEn: 'Pipa performer and educator',
+        image: 'musicians/cartoons/web-cutouts/02-liu-dehai-v6.png?v=20260828-9',
+        greetingZh: '别只听十指有多快，先听这一拨一挑在讲什么。', greetingEn: 'Do not only hear the speed of the fingers; hear what each pluck is saying.',
+        introZh: '以琵琶演奏、教学与作品整理闻名，适合从颗粒感、张力和叙事动作进入音乐。',
+        introEn: 'Known for pipa performance and teaching, he opens music through articulation, tension, and narrative gesture.'
+      },
+      {
+        nameZh: '冯子存', nameEn: 'Feng Zicun', yearsZh: '竹笛演奏家', yearsEn: 'Dizi performer',
+        image: 'musicians/cartoons/web-cutouts/03-feng-zicun-v4.png?v=20260828-5',
+        greetingZh: '先把气送出去，旋律自然会亮起来。', greetingEn: 'Send the breath forward and the melody will brighten on its own.',
+        introZh: '北派竹笛的重要代表人物，音色明亮、节奏鲜活，适合从呼吸、装饰音和民间舞动感谈音乐。',
+        introEn: 'An influential northern-style dizi performer, he listens through breath, ornament, brightness, and folk movement.'
+      },
+      {
+        nameZh: '阿炳', nameEn: 'Abing', yearsZh: '中国民间音乐家', yearsEn: 'Chinese folk musician',
+        image: 'musicians/cartoons/web-cutouts/04-abing.png',
+        greetingZh: '坐吧。苦和甜，都在这一弓里。', greetingEn: 'Sit awhile. Bitter and sweet live in the same bow.',
+        introZh: '他的表达朴素、克制，从街巷、脚步和弓弦的摩擦谈生活里的苦甜。',
+        introEn: 'Plain-spoken and restrained, he hears everyday life in footsteps, streets, and the grain of the bow.'
+      },
+      {
+        nameZh: '冼星海', nameEn: 'Xian Xinghai', yearsZh: '中国作曲家', yearsEn: 'Chinese composer',
+        image: 'musicians/cartoons/web-cutouts/05-xian-xinghai.png',
+        greetingZh: '来，让声音先有一点力量。', greetingEn: 'Come—let the sound gather strength.',
+        introZh: '语言直接而有行动感，常从节奏、合唱和共同完成一件事的力量出发。',
+        introEn: 'Direct and energetic, he begins with rhythm, chorus, and the force of making music together.'
+      },
+      {
+        nameZh: '肖邦', nameEn: 'Frédéric Chopin', yearsZh: '浪漫主义作曲家与钢琴家', yearsEn: 'Romantic composer and pianist',
+        image: 'musicians/cartoons/web-cutouts/06-chopin-v4.png?v=20260828-5',
+        greetingZh: '别急着弹满，让一句旋律保留呼吸。', greetingEn: 'Do not fill every moment; let a phrase keep its breath.',
+        introZh: '以钢琴写作连接歌唱性、舞曲节奏与细腻时间感，适合从触键、停顿和内心独白谈音乐。',
+        introEn: 'His piano writing joins song, dance rhythm, and flexible time, inviting attention to touch, pause, and inward speech.'
+      },
+      {
+        nameZh: '巴赫', nameEn: 'J. S. Bach', yearsZh: '巴洛克作曲家', yearsEn: 'Baroque composer',
+        image: 'musicians/cartoons/web-cutouts/07-bach.png',
+        greetingZh: '别急，每条旋律都有去处。', greetingEn: 'No hurry. Every melody has somewhere to go.',
+        introZh: '像一位耐心的老师，从声部之间的关系解释秩序、方向与彼此回应。',
+        introEn: 'Patient and practical, he follows how independent voices find order and answer one another.'
+      },
+      {
+        nameZh: '莫扎特', nameEn: 'W. A. Mozart', yearsZh: '古典主义作曲家', yearsEn: 'Classical composer',
+        image: 'musicians/cartoons/web-cutouts/08-mozart.png',
+        greetingZh: '来，先听一段有趣的。', greetingEn: 'Come, let us begin with something amusing.',
+        introZh: '反应敏捷、亲近而富有戏剧感，总能从旋律里发现游戏、转折和人物表情。',
+        introEn: 'Quick, playful, and theatrical, he hears character and surprise inside a melody.'
+      },
+      {
+        nameZh: '贝多芬', nameEn: 'L. van Beethoven', yearsZh: '古典主义作曲家', yearsEn: 'Classical composer',
+        image: 'musicians/cartoons/web-cutouts/09-beethoven.png',
+        greetingZh: '别怕响。命运也有节拍。', greetingEn: 'Do not fear the sound. Fate has rhythm too.',
+        introZh: '表达直接而强烈，喜欢抓住一个动机，看它如何在压力中改变、坚持和突破。',
+        introEn: 'Direct and intense, he follows a musical idea as it changes, resists, and breaks through pressure.'
+      },
+      {
+        nameZh: '斯科特·乔普林', nameEn: 'Scott Joplin', yearsZh: '拉格泰姆作曲家', yearsEn: 'Ragtime composer',
+        image: 'musicians/cartoons/web-cutouts/10-scott-joplin.png',
+        greetingZh: '放松一点，让节奏先走。', greetingEn: 'Relax. Let the rhythm take the first step.',
+        introZh: '语气温和而清楚，重视稳定节拍，让切分节奏在从容中自然向前。',
+        introEn: 'Warm and precise, he keeps the pulse steady so syncopation can move with ease.'
+      }
+    ];
+
+    const listeningExamples = {
+      zh: [
+        '这一声落下以后，真正要听的是它怎样慢慢消失。',
+        '每一颗声音都要站稳，连起来才会成为动作。',
+        '这一口气转过去，旋律就从说话变成了起舞。',
+        '这段像一个人在夜里走，弓弦里有生活留下的重量。',
+        '弱音不等于退缩，节奏怎样把个人的情绪变成共同的力量？',
+        '让旋律保留呼吸，停顿有时比下一个音更接近心事。',
+        '先分开听低音与上方声部，再听它们如何彼此支撑。',
+        '把旋律听成两个人的对白，注意谁先靠近、谁又退开。',
+        '找出音乐中被压住的冲突，看它怎样一步步获得力量。',
+        '先让身体跟上稳定节拍，再听切分怎样把重心轻轻推开。'
+      ],
+      en: [
+        'After the note lands, hear how its resonance slowly disappears.',
+        'Let each plucked sound stand clearly before joining it into a gesture.',
+        'Follow the turn of the breath as melody changes from speech into dance.',
+        'It sounds like someone walking alone at night, carrying the weight of life.',
+        'Softness is not retreat. Hear how rhythm gathers private feeling into shared force.',
+        'Let the melody breathe; a pause may reveal more than the next note.',
+        'Separate the bass from the upper voices, then hear how they support one another.',
+        'Hear the melody as dialogue: who approaches first, and who steps away?',
+        'Find the restrained conflict and follow how it gathers strength.',
+        'Let the body find the pulse, then feel syncopation shift the balance.'
+      ]
+    };
+
+    const musicianAudio = [
+      { src: 'assets/audio/portraits/guan-pinghu-liu-shui.ogg', startAt: 8, workZh: '正在试听：古琴曲《流水》开放许可参考演奏。留意余韵、留白与指下气息如何拉开时间。', workEn: 'Now playing: an openly licensed reference performance of Liu Shui. Notice how resonance, silence, and touch stretch the sense of time.' },
+      { src: 'assets/audio/portraits/liu-dehai-pipa-sample.ogg?v=20260829-17', startAt: 0, workZh: '正在试听：琵琶曲《十面埋伏》选段。先听密集拨弦怎样把紧张感一步步推高。', workEn: 'Now playing: an excerpt from Ambush from Ten Sides. Hear how rapid plucking steadily increases the tension.' },
+      { src: 'assets/audio/portraits/feng-zicun-dizi-sample.ogg?v=20260829-19', startAt: 0, workZh: '正在试听：梆笛独奏《喜相逢》。先听开头两句怎样像久别重逢的问候，再听速度加快后，短促明亮的笛声怎样一步步把气氛推向热闹。', workEn: 'Now playing: the bangdi solo The Pleasure of Meeting. Hear the opening phrases greet each other, then notice how the bright, agile flute sound turns reunion into celebration.' },
+      { src: 'assets/audio/portraits/abing-erquan-yingyue.ogg', startAt: 4, workZh: '代表作《二泉映月》', workEn: 'Signature work: Erquan Yingyue' },
+      { src: 'assets/audio/portraits/xian-xinghai-defend-yellow-river.ogg?v=20260829-17', startAt: 0, workZh: '正在试听：《黄河大合唱》中的《保卫黄河》选段。听不同声音怎样一层层加入，最后汇成共同的力量。', workEn: 'Now playing: an excerpt from Defend the Yellow River in the Yellow River Cantata. Hear separate voices join layer by layer into a shared force.' },
+      { src: 'assets/audio/portraits/chopin-nocturne-op9-no2.ogg', startAt: 5, workZh: '正在试听：肖邦《降 E 大调夜曲》Op. 9 No. 2。留意右手旋律的歌唱感、装饰音，以及伴奏稳定脉搏之上的自由呼吸。', workEn: 'Now playing: Chopin’s Nocturne in E-flat major, Op. 9 No. 2. Notice the singing right-hand line, ornament, and flexible breath above the accompaniment’s steady pulse.' },
+      { src: 'assets/audio/portraits/bach-air.mp3', startAt: 4, workZh: '《D 大调第三管弦乐组曲》咏叹调', workEn: 'Air from Orchestral Suite No. 3' },
+      { src: 'assets/audio/portraits/mozart-eine-kleine-nachtmusik.ogg', startAt: 3, workZh: '《G 大调弦乐小夜曲》第一乐章', workEn: 'Eine kleine Nachtmusik, first movement' },
+      { src: 'assets/audio/portraits/beethoven-moonlight.ogg', startAt: 5, workZh: '《月光奏鸣曲》第一乐章', workEn: 'Moonlight Sonata, first movement' },
+      { src: 'assets/audio/portraits/joplin-entertainer.ogg', startAt: 2, workZh: '《艺人》', workEn: 'The Entertainer' }
+    ];
+
+    const representativeWorks = {
+      zh: [
+        '《流水》《广陵散》《胡笳十八拍》',
+        '《十面埋伏》《草原小姐妹》《天鹅》',
+        '《喜相逢》《放风筝》《五梆子》',
+        '《二泉映月》《听松》《寒春风曲》',
+        '《黄河大合唱》《在太行山上》《救国军歌》',
+        '《降 E 大调夜曲》Op. 9 No. 2、《第一叙事曲》《英雄波兰舞曲》',
+        '《勃兰登堡协奏曲》《哥德堡变奏曲》《平均律钢琴曲集》',
+        '《魔笛》《G 大调弦乐小夜曲》《安魂曲》',
+        '《第五交响曲》《第九交响曲》《月光奏鸣曲》',
+        '《枫叶拉格》《艺人》《慰藉》'
+      ],
+      en: [
+        'Liu Shui, Guangling San, and Hujia Shiba Pai',
+        'Ambush from Ten Sides, The Little Sisters of the Grassland, and The Swan',
+        'Happy Reunion, Flying a Kite, and Five Clappers',
+        'Erquan Yingyue, Listening to the Pines, and Cold Spring Wind',
+        'Yellow River Cantata, On the Taihang Mountains, and National Salvation Military Song',
+        'Nocturne in E-flat major Op. 9 No. 2, Ballade No. 1, and Heroic Polonaise',
+        'Brandenburg Concertos, Goldberg Variations, and The Well-Tempered Clavier',
+        'The Magic Flute, Eine kleine Nachtmusik, and Requiem',
+        'Symphony No. 5, Symphony No. 9, and Moonlight Sonata',
+        'Maple Leaf Rag, The Entertainer, and Solace'
+      ]
+    };
+
+    const copy = {
+      zh: {
+        act: '第一幕 · 认识陪听者', valueTitle: '听见一段音乐，却不知道为什么被打动？',
+        valueCopy: '选择不同的陪听者，他们会从旋律、结构、情绪和人生经验中，带你重新听一次。',
+        hint: '左右拖动五线谱 · 点击音乐家，试听与他对应的代表作。',
+        enter: 'Tuning In 为我推荐', manualEntry: '我自己选择',
+        dialogKicker: '今晚的陪听者'
+      },
+      en: {
+        act: 'Act I · Meet your listeners', valueTitle: 'Moved by a piece of music, but unsure why?',
+        valueCopy: 'Choose a listening companion. Each one helps you hear melody, structure, emotion, and lived experience from a different angle.',
+        hint: 'Drag the score · Select a musician to hear a representative work.',
+        enter: 'Recommend my trio', manualEntry: 'Choose for myself',
+        dialogKicker: 'Tonight’s listener'
+      }
+    };
+
+    const artistButtons = [];
+    let language = localStorage.getItem('tuningLanguage') || 'zh';
+    let offset = 0;
+    let lastTime = performance.now();
+    let dragging = false;
+    let dragDistance = 0;
+    let pointerX = 0;
+    let pointerTime = 0;
+    let glideVelocity = 0;
+    let hoveredArtists = 0;
+    let selectedIndex = null;
+    let musicPlaying = true;
+    let pendingAutoplay = false;
+
+    function staffCenter(localX, base, amplitude, phase) {
+      const cycleAngle = localX / cycleWidth * Math.PI * 2;
+      return base + Math.sin(cycleAngle * 3 + phase) * amplitude + Math.sin(cycleAngle * 7 + phase * .7) * 7;
+    }
+
+    function buildPath(copyIndex, base, amplitude, phase, lineIndex) {
+      const startX = copyIndex * cycleWidth;
+      const offsetY = (lineIndex - 2) * 16;
+      const points = [];
+      for (let localX = 0; localX < cycleWidth; localX += 18) {
+        const y = staffCenter(localX, base, amplitude, phase) + offsetY;
+        points.push(`${localX === 0 ? 'M' : 'L'}${startX + localX},${y.toFixed(1)}`);
+      }
+      const endY = staffCenter(cycleWidth, base, amplitude, phase) + offsetY;
+      points.push(`L${startX + cycleWidth},${endY.toFixed(1)}`);
+      return points.join(' ');
+    }
+
+    function createSvgElement(tag, attributes) {
+      const element = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+      return element;
+    }
+
+    function buildStaff() {
+      staffSvg.setAttribute('viewBox', `0 0 ${totalWidth} 610`);
+      staffSvg.setAttribute('preserveAspectRatio', 'none');
+      for (let copyIndex = 0; copyIndex < 2; copyIndex += 1) {
+        for (let lineIndex = 0; lineIndex < 5; lineIndex += 1) {
+          staffSvg.appendChild(createSvgElement('path', { class: 'staff-line', d: buildPath(copyIndex, 190, 42, .15, lineIndex) }));
+          staffSvg.appendChild(createSvgElement('path', { class: 'staff-line', d: buildPath(copyIndex, 385, 38, 2.15, lineIndex) }));
+        }
+        for (let localX = 920; localX < cycleWidth; localX += 920) {
+          const absoluteX = copyIndex * cycleWidth + localX;
+          const upperCenter = staffCenter(localX, 190, 42, .15);
+          const lowerCenter = staffCenter(localX, 385, 38, 2.15);
+          staffSvg.appendChild(createSvgElement('line', { class: 'bar-line', x1: absoluteX, x2: absoluteX, y1: upperCenter - 34, y2: upperCenter + 34 }));
+          staffSvg.appendChild(createSvgElement('line', { class: 'bar-line', x1: absoluteX, x2: absoluteX, y1: lowerCenter - 34, y2: lowerCenter + 34 }));
+        }
+      }
+    }
+
+    function addSymbol(symbol, localX, top, size, className = '') {
+      for (let copyIndex = 0; copyIndex < 2; copyIndex += 1) {
+        const element = document.createElement('span');
+        element.className = `score-symbol ${className}`.trim();
+        element.textContent = symbol;
+        element.style.left = `${localX + copyIndex * cycleWidth}px`;
+        element.style.top = `${top}px`;
+        element.style.fontSize = `${size}px`;
+        decorationsRoot.appendChild(element);
+      }
+    }
+
+    function addBoat(localX, top) {
+      for (let copyIndex = 0; copyIndex < 2; copyIndex += 1) {
+        const boat = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        boat.setAttribute('viewBox', '0 0 150 94');
+        boat.setAttribute('class', 'music-boat');
+        boat.style.left = `${localX + copyIndex * cycleWidth}px`;
+        boat.style.top = `${top}px`;
+        boat.innerHTML = `
+          <ellipse cx="20" cy="51" rx="12" ry="17" fill="currentColor" transform="rotate(-25 20 51)"/>
+          <ellipse cx="36" cy="70" rx="8" ry="6" fill="currentColor"/>
+          <path d="M31 62 H118 L107 69 H36 Z" fill="currentColor"/>
+          <path d="M39 67 C55 91 92 91 107 67" fill="none" stroke="currentColor" stroke-width="3"/>
+          <text x="45" y="50" fill="currentColor" font-size="28" font-family="Apple Symbols">𝄞</text>
+          <text x="68" y="40" fill="currentColor" font-size="41" font-family="Apple Symbols">𝄞</text>
+          <text x="102" y="51" fill="currentColor" font-size="30" font-family="Apple Symbols">𝄞</text>
+          <circle cx="128" cy="47" r="5" fill="currentColor"/>
+          <circle cx="141" cy="58" r="2.5" fill="currentColor"/>
+          <path d="M132 44 L137 25 Q149 29 140 37" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        `;
+        decorationsRoot.appendChild(boat);
+      }
+    }
+
+    const staffConfigs = {
+      upper: { base: 190, amplitude: 42, phase: .15 },
+      lower: { base: 385, amplitude: 38, phase: 2.15 }
+    };
+
+    function noteY(localX, staffName, pitchStep) {
+      const config = staffConfigs[staffName];
+      return staffCenter(localX, config.base, config.amplitude, config.phase) + pitchStep * 8;
+    }
+
+    function appendMeasureElement(tag, attributes) {
+      staffSvg.appendChild(createSvgElement(tag, attributes));
+    }
+
+    function drawNoteHead(absoluteX, y) {
+      appendMeasureElement('ellipse', {
+        class: 'measure-note-head',
+        cx: absoluteX,
+        cy: y,
+        rx: 7.8,
+        ry: 5.2,
+        transform: `rotate(-18 ${absoluteX} ${y})`
+      });
+    }
+
+    function drawLedgerLine(absoluteX, y) {
+      appendMeasureElement('line', {
+        class: 'measure-ledger-line',
+        x1: absoluteX - 12,
+        x2: absoluteX + 12,
+        y1: y,
+        y2: y
+      });
+    }
+
+    function drawSingleNote(localX, staffName, pitchSteps, stemUp = true) {
+      const steps = Array.isArray(pitchSteps) ? pitchSteps : [pitchSteps];
+      for (let copyIndex = 0; copyIndex < 2; copyIndex += 1) {
+        const absoluteX = localX + copyIndex * cycleWidth;
+        const positions = steps.map((step) => ({ step, y: noteY(localX, staffName, step) }));
+        positions.forEach(({ step, y }) => {
+          drawNoteHead(absoluteX, y);
+          if (Math.abs(step) >= 4) drawLedgerLine(absoluteX, y);
+        });
+        const stemX = absoluteX + (stemUp ? 6 : -6);
+        const startY = stemUp ? Math.max(...positions.map((position) => position.y)) : Math.min(...positions.map((position) => position.y));
+        const endY = stemUp ? Math.min(...positions.map((position) => position.y)) - 30 : Math.max(...positions.map((position) => position.y)) + 30;
+        appendMeasureElement('line', { class: 'measure-note-stem', x1: stemX, x2: stemX, y1: startY, y2: endY });
+      }
+    }
+
+    function drawBeamedGroup(localStart, staffName, pitchSteps, spacing, beamCount = 1) {
+      for (let copyIndex = 0; copyIndex < 2; copyIndex += 1) {
+        const notes = pitchSteps.map((pitchStep, index) => {
+          const localX = localStart + index * spacing;
+          return {
+            localX,
+            x: localX + copyIndex * cycleWidth,
+            y: noteY(localX, staffName, pitchStep),
+            pitchStep
+          };
+        });
+        const first = notes[0];
+        const last = notes[notes.length - 1];
+        const beamStartY = first.y - 31;
+        const beamEndY = last.y - 31;
+        notes.forEach((note, index) => {
+          const progress = notes.length === 1 ? 0 : index / (notes.length - 1);
+          const beamY = beamStartY + (beamEndY - beamStartY) * progress;
+          drawNoteHead(note.x, note.y);
+          if (Math.abs(note.pitchStep) >= 4) drawLedgerLine(note.x, note.y);
+          appendMeasureElement('line', {
+            class: 'measure-note-stem',
+            x1: note.x + 6,
+            x2: note.x + 6,
+            y1: note.y,
+            y2: beamY
+          });
+        });
+        for (let beamIndex = 0; beamIndex < beamCount; beamIndex += 1) {
+          appendMeasureElement('line', {
+            class: 'measure-note-beam',
+            x1: first.x + 6,
+            x2: last.x + 6,
+            y1: beamStartY + beamIndex * 8,
+            y2: beamEndY + beamIndex * 8
+          });
+        }
+      }
+    }
+
+    function drawQuarterRest(localX, staffName) {
+      for (let copyIndex = 0; copyIndex < 2; copyIndex += 1) {
+        const absoluteX = localX + copyIndex * cycleWidth;
+        const centerY = noteY(localX, staffName, 0);
+        appendMeasureElement('path', {
+          class: 'measure-note-stem',
+          d: `M${absoluteX - 5},${centerY - 27} L${absoluteX + 7},${centerY - 13} L${absoluteX - 3},${centerY - 2} L${absoluteX + 8},${centerY + 9} L${absoluteX - 1},${centerY + 23}`
+        });
+      }
+    }
+
+    function buildDecorations() {
+      const noteSymbols = ['♩', '♪', '♫', '♩', '♬', '♪', '♩', '♫', '♭', '♪'];
+      const pitchSteps = [-2, 0, 1, -1, 2, 0, -3, 1, -1, 2, 0, -2, 1, 3, 0, -1, 2, -2, 1, 0, -1, 2, 0, -2];
+      const treblePositions = [60, 980, 1900, 2820, 3740];
+      treblePositions.forEach((localX, index) => {
+        const upperY = staffCenter(localX, 190, 42, .15) - 55;
+        const lowerY = staffCenter(localX + 360, 385, 38, 2.15) - 55;
+        addSymbol('𝄞', localX, upperY, 62, index === 2 ? 'accent' : '');
+        addSymbol('𝄞', localX + 360, lowerY, 58, '');
+      });
+      for (let index = 0; index < 24; index += 1) {
+        const upperX = 145 + index * 187;
+        const lowerX = 245 + index * 187;
+        const upperY = staffCenter(upperX, 190, 42, .15) + pitchSteps[index] * 8 - 20;
+        const lowerY = staffCenter(lowerX, 385, 38, 2.15) + pitchSteps[(index + 5) % pitchSteps.length] * 8 - 20;
+        const upperSize = 31 + index % 3 * 3;
+        const lowerSize = 31 + (index + 1) % 3 * 3;
+        addSymbol(noteSymbols[index % noteSymbols.length], upperX, upperY, upperSize, index === 12 ? 'accent' : '');
+        addSymbol(noteSymbols[(index + 3) % noteSymbols.length], lowerX, lowerY, lowerSize, index === 18 ? 'accent' : '');
+      }
+      addBoat(1420, staffCenter(1420, 190, 42, .15) - 82);
+      addBoat(3270, staffCenter(3270, 385, 38, 2.15) - 80);
+    }
+
+    async function toggleMusic() {
+      if (musicPlaying) {
+        bgm.pause();
+      } else {
+        bgm.volume = .4;
+        try {
+          await bgm.play();
+        } catch {
+          musicPlaying = false;
+        }
+      }
+      musicPlaying = !bgm.paused;
+      musicToggle.classList.toggle('is-playing', musicPlaying);
+      musicToggle.setAttribute('aria-pressed', String(musicPlaying));
+      musicToggle.setAttribute('aria-label', musicPlaying ? '暂停背景音乐' : '播放背景音乐');
+      musicToggle.title = musicPlaying ? '暂停背景音乐' : '播放背景音乐';
+    }
+
+    async function playMusicianTheme(index) {
+      const { src, startAt = 0, unavailable } = musicianAudio[index];
+      if (unavailable || !src) {
+        bgm.pause();
+        return;
+      }
+      const sourceChanged = !bgm.src.endsWith(src);
+      if (sourceChanged) {
+        bgm.src = src;
+        bgm.load();
+      }
+      bgm.volume = .4;
+      const seek = () => {
+        if (Number.isFinite(bgm.duration)) bgm.currentTime = Math.min(startAt, Math.max(0, bgm.duration - .5));
+      };
+      if (bgm.readyState >= 1) seek();
+      else bgm.addEventListener('loadedmetadata', seek, { once: true });
+      await bgm.play().catch(() => { pendingAutoplay = true; });
+    }
+
+    function artistTop(index, localX) {
+      const upper = index % 2 === 0;
+      const base = upper ? 190 : 385;
+      const amplitude = upper ? 42 : 38;
+      const phase = upper ? .15 : 2.15;
+      return staffCenter(localX, base, amplitude, phase) - (upper ? 112 : 106);
+    }
+
+    function createArtist(musician, index, copyIndex) {
+      const localX = 250 + index * 460;
+      const slot = document.createElement('div');
+      slot.className = 'artist-slot';
+      slot.style.left = `${localX + copyIndex * cycleWidth}px`;
+      slot.style.top = `${artistTop(index, localX)}px`;
+      slot.style.animationDelay = `${-(index * .43 + copyIndex * .2)}s`;
+
+      const button = document.createElement('button');
+      button.className = 'artist';
+      button.type = 'button';
+      button.dataset.index = String(index);
+      button.setAttribute('aria-label', `查看${musician.nameZh}的介绍`);
+
+      const image = document.createElement('img');
+      image.src = musician.image;
+      image.alt = `${musician.nameZh}卡通头像`;
+      image.draggable = false;
+      button.appendChild(image);
+      slot.appendChild(button);
+      artistsRoot.appendChild(slot);
+      artistButtons.push(button);
+
+      button.addEventListener('mouseenter', () => { hoveredArtists += 1; });
+      button.addEventListener('mouseleave', () => { hoveredArtists = Math.max(0, hoveredArtists - 1); });
+      button.addEventListener('focus', () => { hoveredArtists += 1; });
+      button.addEventListener('blur', () => { hoveredArtists = Math.max(0, hoveredArtists - 1); });
+      button.addEventListener('pointerdown', (event) => {
+        event.stopPropagation();
+        glideVelocity = 0;
+        openArtistDialog(index, button);
+      });
+      button.addEventListener('click', (event) => {
+        if (event.detail !== 0 || dragDistance > 7) return;
+        openArtistDialog(index, button);
+      });
+    }
+
+    function buildArtists() {
+      for (let copyIndex = 0; copyIndex < 2; copyIndex += 1) {
+        musicians.forEach((musician, index) => createArtist(musician, index, copyIndex));
+      }
+    }
+
+    function positionDialog(button) {
+      const rect = button.getBoundingClientRect();
+      const dialogWidth = Math.min(340, window.innerWidth - 32);
+      const sideGap = 20;
+      const edgeGap = 14;
+      const rightSpace = window.innerWidth - rect.right - sideGap;
+      const leftSpace = rect.left - sideGap;
+      const canPlaceRight = rightSpace >= dialogWidth;
+      const canPlaceLeft = leftSpace >= dialogWidth;
+
+      artistDialog.classList.remove('is-side', 'is-below');
+      artistDialog.style.maxHeight = `${window.innerHeight - edgeGap * 2}px`;
+
+      if (canPlaceRight || canPlaceLeft) {
+        const placeRight = canPlaceRight && (!canPlaceLeft || rightSpace >= leftSpace);
+        const left = placeRight ? rect.right + sideGap : rect.left - dialogWidth - sideGap;
+        const dialogHeight = Math.min(artistDialog.scrollHeight || 190, window.innerHeight - edgeGap * 2);
+        const top = Math.min(
+          Math.max(edgeGap, rect.top + rect.height / 2 - dialogHeight / 2),
+          window.innerHeight - dialogHeight - edgeGap
+        );
+        artistDialog.style.left = `${left}px`;
+        artistDialog.style.top = `${top}px`;
+        artistDialog.classList.add('is-side');
+        return;
+      }
+
+      const aboveSpace = Math.max(0, rect.top - sideGap - edgeGap);
+      const belowSpace = Math.max(0, window.innerHeight - rect.bottom - sideGap - edgeGap);
+      const placeBelow = belowSpace >= aboveSpace;
+      const availableHeight = Math.max(120, placeBelow ? belowSpace : aboveSpace);
+      artistDialog.style.maxHeight = `${availableHeight}px`;
+      const dialogHeight = Math.min(artistDialog.scrollHeight || 190, availableHeight);
+      const left = Math.min(Math.max(rect.left + rect.width / 2 - dialogWidth / 2, 16), window.innerWidth - dialogWidth - 16);
+      const top = placeBelow ? rect.bottom + sideGap : rect.top - dialogHeight - sideGap;
+      const pointerLeft = Math.min(Math.max(rect.left + rect.width / 2 - left, 28), dialogWidth - 28);
+      artistDialog.style.left = `${left}px`;
+      artistDialog.style.top = `${Math.max(edgeGap, top)}px`;
+      artistDialog.style.setProperty('--pointer-left', `${pointerLeft}px`);
+      artistDialog.classList.toggle('is-below', placeBelow);
+    }
+
+    function openArtistDialog(index, button) {
+      selectedIndex = index;
+      glideVelocity = 0;
+      const musician = musicians[index];
+      artistButtons.forEach((artistButton) => artistButton.classList.toggle('is-selected', Number(artistButton.dataset.index) === index));
+      dialogNameZh.textContent = musician.nameZh;
+      dialogNameEn.textContent = `${musician.nameEn} · ${language === 'zh' ? musician.yearsZh : musician.yearsEn}`;
+      dialogIntro.textContent = language === 'zh' ? musician.introZh : musician.introEn;
+      dialogRepertoire.innerHTML = `<strong>${language === 'zh' ? '代表作：' : 'Representative works: '}</strong>${representativeWorks[language][index]}`;
+      const audioInfo = musicianAudio[index];
+      dialogWork.textContent = language === 'zh' ? audioInfo.workZh : audioInfo.workEn;
+      dialogWork.classList.toggle('is-unavailable', Boolean(audioInfo.unavailable));
+      dialogGreeting.textContent = language === 'zh' ? musician.greetingZh : musician.greetingEn;
+      dialogExample.textContent = listeningExamples[language][index];
+      dialogExample.dataset.label = language === 'zh' ? '他会这样陪你听' : 'How this listener helps you hear';
+      playMusicianTheme(index);
+      artistDialog.classList.add('is-open');
+      artistDialog.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => positionDialog(button));
+    }
+
+    function closeArtistDialog() {
+      selectedIndex = null;
+      artistButtons.forEach((artistButton) => artistButton.classList.remove('is-selected'));
+      artistDialog.classList.remove('is-open');
+      artistDialog.setAttribute('aria-hidden', 'true');
+    }
+
+    function centerMusician(index) {
+      const localX = 250 + index * 460;
+      offset = window.innerWidth / 2 - localX;
+      normalizeOffset();
+      render();
+      const button = artistButtons.find((artistButton) => Number(artistButton.dataset.index) === index && artistButton.getBoundingClientRect().left > 0);
+      if (button) openArtistDialog(index, button);
+    }
+
+    function normalizeOffset() {
+      while (offset <= -cycleWidth) offset += cycleWidth;
+      while (offset > 0) offset -= cycleWidth;
+    }
+
+    function render() {
+      normalizeOffset();
+      movingStrip.style.transform = `translate3d(${offset}px, 0, 0)`;
+      if (selectedIndex !== null && artistDialog.classList.contains('is-open')) {
+        const visibleButton = artistButtons.find((button) => {
+          if (Number(button.dataset.index) !== selectedIndex) return false;
+          const rect = button.getBoundingClientRect();
+          return rect.right > 0 && rect.left < window.innerWidth;
+        });
+        if (visibleButton) positionDialog(visibleButton);
+      }
+    }
+
+    function tick(now) {
+      const elapsed = Math.min(now - lastTime, 48);
+      lastTime = now;
+      const dialogOpen = artistDialog.classList.contains('is-open');
+      if (!dragging && Math.abs(glideVelocity) > .004) {
+        offset += glideVelocity * elapsed;
+        glideVelocity *= Math.pow(.93, elapsed / 16.67);
+        if (Math.abs(glideVelocity) <= .004) glideVelocity = 0;
+      } else if (!dragging && hoveredArtists === 0 && !dialogOpen && !reducedMotion) {
+        offset -= elapsed * .027;
+      }
+      render();
+      requestAnimationFrame(tick);
+    }
+
+    function setLanguage(nextLanguage) {
+      language = nextLanguage;
+      localStorage.setItem('tuningLanguage', language);
+      languageButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.language === language)));
+      document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
+      document.querySelectorAll('[data-copy]').forEach((element) => {
+        const key = element.dataset.copy;
+        if (copy[language][key]) element.textContent = copy[language][key];
+      });
+      if (selectedIndex !== null) {
+        const visibleButton = artistButtons.find((button) => Number(button.dataset.index) === selectedIndex && button.getBoundingClientRect().right > 0);
+        if (visibleButton) openArtistDialog(selectedIndex, visibleButton);
+      }
+    }
+
+    stage.addEventListener('pointerdown', (event) => {
+      if (event.target.closest('.artist')) return;
+      dragging = true;
+      dragDistance = 0;
+      pointerX = event.clientX;
+      pointerTime = performance.now();
+      glideVelocity = 0;
+      stage.classList.add('is-dragging');
+      stage.setPointerCapture(event.pointerId);
+    });
+
+    stage.addEventListener('pointermove', (event) => {
+      if (!dragging) return;
+      const now = performance.now();
+      const movement = event.clientX - pointerX;
+      const elapsed = Math.max(now - pointerTime, 8);
+      const instantVelocity = movement / elapsed;
+      offset += movement;
+      dragDistance += Math.abs(movement);
+      glideVelocity = Math.max(-2.8, Math.min(2.8, glideVelocity * .58 + instantVelocity * .42));
+      pointerX = event.clientX;
+      pointerTime = now;
+    });
+
+    function releasePointer(event) {
+      if (!dragging) return;
+      dragging = false;
+      stage.classList.remove('is-dragging');
+      if (stage.hasPointerCapture(event.pointerId)) stage.releasePointerCapture(event.pointerId);
+      window.setTimeout(() => { dragDistance = 0; }, 0);
+    }
+
+    stage.addEventListener('pointerup', releasePointer);
+    stage.addEventListener('pointercancel', releasePointer);
+    stage.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      const movement = -(event.deltaX || event.deltaY);
+      offset += movement;
+      glideVelocity = Math.max(-2.2, Math.min(2.2, glideVelocity * .45 + movement * .018));
+      closeArtistDialog();
+    }, { passive: false });
+
+    languageButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.language)));
+    enter.addEventListener('click', () => {
+      localStorage.setItem('tuningSelectionMode', 'recommend');
+      localStorage.setItem('tuningCompanions', JSON.stringify(['mozart', 'bach', 'beethoven']));
+      window.location.href = 'companions.html';
+    });
+    manualEntry.addEventListener('click', () => {
+      localStorage.setItem('tuningSelectionMode', 'manual');
+      localStorage.removeItem('tuningCompanions');
+      window.location.href = 'companions.html';
+    });
+    dialogClose.addEventListener('click', closeArtistDialog);
+    document.addEventListener('pointerdown', (event) => {
+      if (!artistDialog.classList.contains('is-open')) return;
+      if (event.target.closest('.artist-dialog') || event.target.closest('.artist')) return;
+      closeArtistDialog();
+    });
+    musicToggle.addEventListener('click', toggleMusic);
+    bgm.addEventListener('play', () => {
+      musicPlaying = true;
+      musicToggle.classList.add('is-playing');
+      musicToggle.setAttribute('aria-pressed', 'true');
+    });
+    bgm.addEventListener('pause', () => {
+      musicPlaying = false;
+      musicToggle.classList.remove('is-playing');
+      musicToggle.setAttribute('aria-pressed', 'false');
+    });
+    bgm.addEventListener('ended', () => {
+      musicPlaying = false;
+      musicToggle.classList.remove('is-playing');
+      musicToggle.setAttribute('aria-pressed', 'false');
+      musicToggle.setAttribute('aria-label', '重新播放背景音乐');
+      musicToggle.title = '重新播放背景音乐';
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeArtistDialog();
+    });
+    document.getElementById('enter').addEventListener('click', () => {
+      sessionStorage.setItem('tuningMusicTime', String(bgm.currentTime || 0));
+      sessionStorage.setItem('tuningMusicPlaying', String(!bgm.paused));
+      window.location.href = 'companions.html';
+    });
+    window.addEventListener('resize', render);
+
+    buildStaff();
+    buildDecorations();
+    buildArtists();
+    setLanguage(language);
+    musicToggle.classList.add('is-playing');
+    musicToggle.setAttribute('aria-pressed', 'true');
+    bgm.volume = .4;
+    bgm.play().catch(() => { pendingAutoplay = true; });
+    document.addEventListener('pointerdown', () => {
+      if (!pendingAutoplay || !musicPlaying) return;
+      pendingAutoplay = false;
+      bgm.play().catch(() => {});
+    }, { once: true });
+    offset = window.innerWidth / 2 - (250 + 5 * 460);
+    normalizeOffset();
+    render();
+    requestAnimationFrame((now) => {
+      lastTime = now;
+      requestAnimationFrame(tick);
+    });
+  </script>
+</body>
+</html>

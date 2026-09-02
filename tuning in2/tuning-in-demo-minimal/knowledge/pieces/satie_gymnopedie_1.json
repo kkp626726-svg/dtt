@@ -1,0 +1,53 @@
+{
+  "piece_id": "satie_gymnopedie_1",
+  "title": "Gymnopédie No. 1",
+  "composer": "Erik Satie",
+  "segments": [
+    {
+      "segment_id": "m01-m04",
+      "measure_start": 1,
+      "measure_end": 4,
+      "start_time": 0,
+      "end_time": 15.4,
+      "music_features": ["低音型重复", "三拍子", "和弦间距稳定"],
+      "editor_note": "重复低音与和弦建立缓慢、稳定的步态。"
+    },
+    {
+      "segment_id": "m05-m12",
+      "measure_start": 5,
+      "measure_end": 12,
+      "start_time": 15.4,
+      "end_time": 46.1,
+      "music_features": ["旋律延迟进入", "长时值", "明显留白"],
+      "editor_note": "旋律进入后仍保留大量空间，形成欲言又止的听感。"
+    },
+    {
+      "segment_id": "m13-m24",
+      "measure_start": 13,
+      "measure_end": 24,
+      "start_time": 46.1,
+      "end_time": 92.2,
+      "music_features": ["低音持续重复", "和声色彩变化", "力度克制"],
+      "editor_note": "熟悉的低音持续存在，上方和声逐渐偏移。"
+    },
+    {
+      "segment_id": "m25-m39",
+      "measure_start": 25,
+      "measure_end": 39,
+      "start_time": 92.2,
+      "end_time": 153.7,
+      "music_features": ["主题返回", "内声部连接", "解决被推迟"],
+      "editor_note": "相似材料再次出现，但声部关系和听觉重量已经变化。"
+    },
+    {
+      "segment_id": "m40-m47",
+      "measure_start": 40,
+      "measure_end": 47,
+      "start_time": 153.7,
+      "end_time": 205,
+      "music_features": ["旋律回归", "动态平缓", "结尾保持留白"],
+      "editor_note": "结尾没有制造强烈高潮，以克制和安静完成收束。"
+    }
+  ]
+}
+

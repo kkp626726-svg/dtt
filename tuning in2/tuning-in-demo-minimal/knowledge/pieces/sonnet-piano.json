@@ -1,0 +1,124 @@
+{
+  "piece_id": "sonnet-piano",
+  "title": "Sonnet",
+  "composer": null,
+  "composer_status": "unverified",
+  "duration_seconds": 218.252,
+  "performance": {
+    "type": "user_provided_piano_performance",
+    "visible_source_label": "用户提供演奏视频",
+    "video_path": "知音-web-deploy/assets/video/library/sonnet-performance.mp4",
+    "audio_path": "知音-web-deploy/assets/audio/library/sonnet.mp3",
+    "rights_status": "needs_publication_review"
+  },
+  "aliases": ["Sonnet", "sonnet", "十四行诗"],
+  "work_facts": [
+    "当前只能确认视频画面显示曲名 Sonnet；当前演奏者与正式作品版本尚未从可靠来源核验。",
+    "作曲者与作品版本尚未从可靠来源核验，因此产品不能猜测作者或创作背景。"
+  ],
+  "source_records": [
+    {
+      "source_id": "SONNET_LOCAL_VIDEO_001",
+      "publisher": "user-provided project media",
+      "path": "知音-web-deploy/assets/video/library/sonnet-performance.mp4",
+      "supports": ["displayed_title", "visible_source_label", "duration", "segment_analysis"],
+      "checked_at": "2026-08-29"
+    }
+  ],
+  "answer_boundaries": [
+    "可以讨论当前演奏中经过人工复核的旋律停顿、层次增减、响度变化和余响。",
+    "遇到作者、年代、创作故事或作品归属问题时，应明确现有资料无法确认。"
+  ],
+  "segments": [
+    {
+      "segment_id": "sonnet-opening-breath",
+      "start_time": 0,
+      "end_time": 33,
+      "cue_time": 9,
+      "stage": "开场",
+      "music_features": ["旋律由短句组成", "句子之间有停顿", "低处支撑保持方向"],
+      "listen_for": "别急着追音符，先听每一句抬起后在哪里稍微停一下。",
+      "editor_note": "开场通过短句与句间空间保持亲近和克制。"
+    },
+    {
+      "segment_id": "sonnet-first-expansion",
+      "start_time": 33,
+      "end_time": 59,
+      "cue_time": 33,
+      "stage": "展开",
+      "music_features": ["句子延长", "音区抬高", "响度增加"],
+      "listen_for": "比较开头：现在是音更高了、声音更满了，还是句子更长了？",
+      "editor_note": "熟悉语气通过更长句子和更宽声音空间获得第一次扩展。"
+    },
+    {
+      "segment_id": "sonnet-quiet-reset",
+      "start_time": 59,
+      "end_time": 85,
+      "cue_time": 59,
+      "stage": "转身",
+      "music_features": ["织体变薄", "响度回落", "低处支撑仍连续"],
+      "listen_for": "听刚才较满的声音退去后，哪一层还留在原地继续带路。",
+      "editor_note": "声音减少但方向没有中断，为下一次展开留出空间。"
+    },
+    {
+      "segment_id": "sonnet-second-lift",
+      "start_time": 85,
+      "end_time": 112,
+      "cue_time": 85,
+      "stage": "再起",
+      "music_features": ["熟悉旋律轮廓回归", "落键更明确", "响度再次上升"],
+      "listen_for": "认出前面听过的轮廓，再比较这次落键是不是更明确。",
+      "editor_note": "重复让用户先认路，新的轻重变化再改变同一句材料的分量。"
+    },
+    {
+      "segment_id": "sonnet-main-crest",
+      "start_time": 112,
+      "end_time": 128,
+      "cue_time": 112,
+      "stage": "涌起",
+      "music_features": ["左右手活动同时增加", "音区扩大", "响度来到高点"],
+      "listen_for": "不要只听变响，留意左右手是不是同时弹出更多声音。",
+      "editor_note": "波峰由响度、音区和声音数量共同形成。"
+    },
+    {
+      "segment_id": "sonnet-afterglow",
+      "start_time": 128,
+      "end_time": 154,
+      "cue_time": 128,
+      "stage": "余热",
+      "music_features": ["上层开始回落", "支撑层继续向前", "句尾没有立即停止"],
+      "listen_for": "听声音开始回落时，句尾是马上停住，还是继续向前滑行。",
+      "editor_note": "不同层次没有同时退场，使高潮后的推动力保留一段时间。"
+    },
+    {
+      "segment_id": "sonnet-cleared-space",
+      "start_time": 154,
+      "end_time": 180,
+      "cue_time": 154,
+      "stage": "留白",
+      "music_features": ["同时出现的声音减少", "停顿更加明显", "句子边界变清楚"],
+      "listen_for": "把注意力放到音与音之间，听停顿怎样让下一句更清楚。",
+      "editor_note": "织体减少后，声音先后关系和等待感更容易被听见。"
+    },
+    {
+      "segment_id": "sonnet-final-return",
+      "start_time": 180,
+      "end_time": 196,
+      "cue_time": 180,
+      "stage": "回望",
+      "music_features": ["熟悉旋律回归", "装饰和层次减少", "力量不再向外扩张"],
+      "listen_for": "听主旋律回来后，哪些内容被保留，哪些声音正在慢慢减少。",
+      "editor_note": "结尾通过保留最容易辨认的轮廓建立回望感。"
+    },
+    {
+      "segment_id": "sonnet-last-release",
+      "start_time": 196,
+      "end_time": 218.252,
+      "cue_time": 196,
+      "stage": "落定",
+      "music_features": ["落键次数减少", "最后声音不再追加", "琴弦余响逐渐消失"],
+      "listen_for": "最后几次落键后继续听，直到琴弦的余响完全退去。",
+      "editor_note": "真正的结束发生在最后一个音之后的余响消退过程。"
+    }
+  ]
+}

@@ -7,14 +7,16 @@
 一款面向古典乐新听众的多智能体音乐陪听产品。播放到哪里，问题就发生在哪里。
 
 <p>
-  <a href="https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPOSITORY/"><strong>在线体验</strong></a>
+  <a href="https://kkp626726-svg.github.io/dtt/"><strong>在线体验</strong></a>
   ·
   <a href="#本地运行"><strong>本地运行</strong></a>
+  ·
+  <a href="https://github.com/kkp626726-svg/dtt/tree/main/tuning%20in2"><strong>GitHub 仓库</strong></a>
   ·
   <a href="#它是怎样工作的"><strong>了解架构</strong></a>
 </p>
 
-> 仓库发布后，将上面的 `YOUR_GITHUB_USERNAME/YOUR_REPOSITORY` 替换为实际 GitHub 用户名和仓库名。Pages 工作流已经配置好。
+> 在线演示地址为 `https://kkp626726-svg.github.io/dtt/`。首次发布前，需要按“在线体验”章节把 Pages 工作流放到仓库根目录。
 
 </div>
 
@@ -83,9 +85,19 @@ flowchart LR
 
 ## 在线体验
 
-仓库已提供 GitHub Pages 自动部署工作流：`.github/workflows/deploy-pages.yml`。
+仓库已提供 GitHub Pages 自动部署工作流模板：`tuning in2/.github/workflows/deploy-pages.yml`。
 
-推送到 `main` 或 `master` 后，GitHub Actions 会发布 `tuning-in-demo-minimal/知音-web-deploy`。部署完成后，仓库右侧的 **Deployments** 区域会出现可直接打开的 `github-pages` 地址。
+由于本项目位于 `dtt` 仓库的 `tuning in2` 子目录，GitHub 只会执行仓库根目录下的工作流。首次部署时，请把模板移动或复制到：
+
+```text
+dtt/.github/workflows/deploy-pages.yml
+```
+
+推送到 `main` 或 `master` 后，GitHub Actions 会发布 `tuning in2/tuning-in-demo-minimal/知音-web-deploy`。部署完成后，可以通过下面的地址打开：
+
+```text
+https://kkp626726-svg.github.io/dtt/
+```
 
 GitHub Pages 运行的是静态演示模式：
 

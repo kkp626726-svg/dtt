@@ -1,0 +1,95 @@
+# macOS / editors
+.DS_Store
+**/.DS_Store
+.vscode/
+.idea/
+
+# Secrets: only the placeholder example may enter Git
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+build/
+**/build/
+coverage/
+
+# Runtime database, conversations, logs and temporary exports
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
+data/*.pid
+data/*.log
+data/*.xml
+/.codex-lark-tmp/
+/tmp/
+*.log
+
+# Generated evaluation/model output
+evaluation/results/*.json
+evaluation/results/*.jsonl
+music-analysis-skill/output/upload-*.json
+music-analysis-skill/output/eabbb1f680599acb5433dac1e6b2955d-3c6047ca.analysis.json
+
+# Generated or duplicated deployment copies
+知音-web-deploy/public-site-source/
+知音-web-deploy/public-site-app/src/site/
+知音-web-deploy/public-site-app/src/assets/site/
+知音-web-deploy/media/
+
+# Design intermediates and local reference material
+/output/
+/reference/
+/design/
+/concepts/
+/知音-demo/
+/0812评测标准/
+/assets/
+/musicians/**/*.png
+/musicians/**/*.jpg
+/musicians/**/*.jpeg
+*.zip
+/*.jpeg
+knowledge/zhiyin-dify-knowledge-v1/
+
+# Historical root prototypes; active pages live in 知音-web-deploy/
+/index.html
+/companions.html
+/listening-room.html
+/index-before-staff-interactions.html
+/knowledge-evaluation.html
+/knowledge-preview.html
+/知音-AI音乐家知识库指南.html
+
+# Local-only media without confirmed public redistribution rights
+知音-web-deploy/assets/video/library/river-flows-in-you-performance.mp4
+知音-web-deploy/assets/video/library/sonnet-performance.mp4
+知音-web-deploy/assets/video/library/city-of-stars-performance.mp4
+知音-web-deploy/assets/audio/library/river-flows-in-you.mp3
+知音-web-deploy/assets/audio/library/sonnet.mp3
+知音-web-deploy/assets/audio/library/city-of-stars.mp3
+知音-web-deploy/assets/audio/portraits/liu-dehai-pipa-sample.ogg
+知音-web-deploy/assets/audio/portraits/feng-zicun-dizi-sample.ogg
+
+# Obsolete canonical media no longer referenced by active pages
+知音-web-deploy/assets/video/library/sunlit-piano-session.mp4
+知音-web-deploy/assets/video/gymnopedie-performance-web.mp4
+知音-web-deploy/assets/audio/lala-land-city-of-stars.mp3
+知音-web-deploy/assets/audio/satie-gymnopedie-no1.mp3
+知音-web-deploy/assets/audio/library/*.wav
+知音-web-deploy/assets/audio/portraits/boya-liu-shui.ogg
+知音-web-deploy/assets/audio/portraits/mozart-rondo-alla-turca.ogg
+知音-web-deploy/assets/audio/portraits/hildegard-o-frondens.ogg
+知音-web-deploy/assets/score/
+知音-web-deploy/assets/visual/library/sunlit-piano-session.jpg
+知音-web-deploy/assets/visual/gymnopedie-poster.jpg
+知音-web-deploy/assets/visual/listening-bar-odyssey.png
+知音-web-deploy/assets/visual/listening-bar-original.jpg
+知音-web-deploy/assets/visual/record-room-scene-v2.png
+知音-web-deploy/assets/visual/record-room-scene-v3-hd.jpg
+知音-web-deploy/assets/visual/record-room-scene-v4-soft.jpg
+知音-web-deploy/assets/visual/record-room-scene-v5-unified.jpg

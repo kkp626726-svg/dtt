@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>第四幕 · 唱片室</title>
+  <style>
+    :root {
+      --paper: #f2e5b9;
+      --ink: #3f3a31;
+      --muted: #81745f;
+      --line: rgba(89, 69, 34, .2);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      color: var(--ink);
+      font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #e8dec4;
+    }
+    button { font: inherit; color: inherit; }
+
+    .page {
+      min-height: 100svh;
+      padding: 20px clamp(22px, 3vw, 54px) 28px;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,.62), transparent 34%),
+        repeating-linear-gradient(7deg, rgba(95,73,34,.022) 0 1px, transparent 1px 8px),
+        repeating-linear-gradient(96deg, rgba(255,255,255,.16) 0 1px, transparent 1px 12px),
+        var(--paper);
+    }
+
+    .topbar {
+      width: min(1780px, 100%);
+      margin: 0 auto 18px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .back {
+      justify-self: start;
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      font-size: 14px;
+    }
+
+    .back-icon,
+    .round-button {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: rgba(255,249,228,.62);
+    }
+
+    .heading { text-align: center; }
+    .heading p {
+      margin: 0 0 4px;
+      color: #8a7448;
+      font-size: 11px;
+      letter-spacing: .18em;
+    }
+    .heading h1 {
+      margin: 0;
+      font: 500 clamp(25px, 2.15vw, 34px) Georgia, "Songti SC", serif;
+    }
+    .heading span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .top-actions {
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .scene-pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 17px;
+      background: rgba(255,249,228,.62);
+      font-size: 12px;
+    }
+
+    .scene-music {
+      min-width: 190px;
+      min-height: 44px;
+      padding: 7px 14px 7px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,249,228,.72);
+      cursor: pointer;
+      text-align: left;
+    }
+    .scene-music-icon {
+      width: 29px;
+      height: 29px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff5d7;
+      background: #4a4033;
+      font-size: 12px;
+    }
+    .scene-music-copy {
+      min-width: 0;
+      display: grid;
+      gap: 1px;
+    }
+    .scene-music-copy strong {
+      max-width: 155px;
+      overflow: hidden;
+      font-size: 11px;
+      font-weight: 650;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .scene-music-copy small {
+      color: var(--muted);
+      font-size: 9px;
+    }
+    .scene-music.is-playing .scene-music-icon { background: #a68036; }
+
+    .scene-frame {
+      position: relative;
+      width: min(1420px, 86vw);
+      height: auto;
+      min-height: 0;
+      margin: 0 auto;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      gap: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(84, 65, 34, .18);
+      border-radius: 34px 27px 38px 24px;
+      background: rgba(255,249,229,.72);
+      box-shadow: 0 24px 70px rgba(68,50,22,.14);
+    }
+
+    .scene-image-wrap > img {
+      position: absolute;
+      z-index: 0;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center 50%;
+    }
+
+    .scene-image-wrap {
+      position: relative;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      min-width: 0;
+      overflow: hidden;
+      border-radius: 22px 17px 25px 16px;
+      background: #59402e;
+    }
+
+    .seated-musicians {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .seat-occlusion {
+      position: absolute;
+      z-index: 3;
+      inset: 0;
+      pointer-events: none;
+      background-image: url('assets/visual/record-room-anime.jpg');
+      background-repeat: no-repeat;
+      background-position: center 50%;
+      background-size: cover;
+    }
+    .seat-occlusion--left {
+      clip-path: polygon(24% 80%, 43% 77%, 46% 91%, 20% 92%);
+    }
+    .seat-occlusion--right {
+      clip-path: polygon(52% 79%, 80% 77%, 82% 89%, 49% 90%);
+    }
+    .seat-occlusion--back {
+      clip-path: polygon(43% 65%, 56% 65%, 56% 72%, 43% 72%);
+    }
+
+    .artist-seat {
+      position: absolute;
+      z-index: 2;
+      width: clamp(86px, 10vw, 150px);
+      margin: 0;
+      transform: translateX(-50%);
+      text-align: center;
+      filter: drop-shadow(0 9px 10px rgba(28,19,12,.24));
+      animation: settle-in .7s cubic-bezier(.2,.8,.2,1) both;
+      animation-delay: var(--delay, 0s);
+    }
+
+    .artist-seat img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1;
+      object-fit: contain;
+      object-position: center bottom;
+      -webkit-mask-image: linear-gradient(to bottom, #000 0 91%, rgba(0,0,0,.94) 96%, transparent 100%);
+      mask-image: linear-gradient(to bottom, #000 0 91%, rgba(0,0,0,.94) 96%, transparent 100%);
+    }
+
+    .artist-seat figcaption {
+      display: none;
+    }
+
+    .seat-name {
+      position: absolute;
+      z-index: 5;
+      left: var(--seat-left);
+      bottom: var(--seat-bottom);
+      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 4px 10px;
+      border: 1px solid rgba(255,240,203,.26);
+      border-radius: 999px;
+      color: #fff1cc;
+      background: rgba(60,48,37,.78);
+      box-shadow: 0 5px 14px rgba(34,23,15,.18);
+      backdrop-filter: blur(7px);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .seat-name--left { --seat-left:31.2%; --seat-bottom:5%; }
+    .seat-name--right { --seat-left:65.4%; --seat-bottom:6%; }
+    .seat-name--back { --seat-left:48.3%; --seat-bottom:27%; font-size:9px; min-height:20px; padding:3px 8px; }
+
+    .artist-seat--left {
+      left: 31.2%;
+      bottom: 24.5%;
+      width: clamp(104px, 9.8vw, 150px);
+      --delay: .08s;
+    }
+
+    .artist-seat--right {
+      left: 65.4%;
+      bottom: 26%;
+      width: clamp(102px, 9.4vw, 146px);
+      --delay: .2s;
+    }
+
+    .artist-seat--back {
+      left: 48.3%;
+      bottom: 44%;
+      width: clamp(76px, 6.8vw, 106px);
+      filter: drop-shadow(0 6px 8px rgba(28,19,12,.2));
+      --delay: .34s;
+    }
+
+    .scene-frame::after {
+      content: "";
+      position: absolute;
+      top: 18px;
+      bottom: auto;
+      left: 18px;
+      right: 18px;
+      aspect-ratio: 16 / 9;
+      z-index: 1;
+      border-radius: 22px 17px 25px 16px;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(28,22,16,.08), transparent 24%, transparent 76%, rgba(33,25,17,.12)),
+        radial-gradient(circle at 50% 45%, transparent 48%, rgba(42,31,20,.14));
+    }
+
+    .scene-label {
+      position: absolute;
+      z-index: 4;
+      top: 38px;
+      left: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid rgba(255,245,212,.32);
+      border-radius: 999px;
+      padding: 9px 14px;
+      color: #fff4d6;
+      background: rgba(54,47,39,.72);
+      backdrop-filter: blur(8px);
+      font-size: 11px;
+      letter-spacing: .08em;
+    }
+
+    .scene-label i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #d8b45d;
+      box-shadow: 0 0 0 5px rgba(216,180,93,.13);
+    }
+
+    .reflection-panel {
+      position: relative;
+      z-index: 5;
+      top: auto;
+      right: auto;
+      width: 100%;
+      height: auto;
+      max-height: none;
+      overflow: visible;
+      border: 1px solid rgba(255,245,212,.24);
+      border-radius: 18px 24px 20px 16px;
+      padding: 18px 20px;
+      display: grid;
+      grid-template-columns: minmax(220px,.68fr) minmax(300px,1fr) minmax(390px,1.22fr);
+      gap: 20px;
+      align-items: center;
+      color: #f9efd5;
+      background: linear-gradient(105deg, rgba(62,52,43,.97), rgba(45,39,33,.98));
+      box-shadow: 0 12px 30px rgba(20,15,10,.18);
+      backdrop-filter: blur(16px);
+    }
+    .reflection-intro,
+    .reflection-insights,
+    .reflection-compose { min-width:0; }
+    .reflection-intro { align-self:start; }
+    .reflection-insights,
+    .reflection-compose { border-left:1px solid rgba(255,245,212,.13); padding-left:20px; }
+    .reflection-panel .eyebrow { margin:0 0 8px; color:#d7bd76; font-size:10px; letter-spacing:.16em; }
+    .reflection-panel h2 { margin:0; font:500 clamp(24px,2.2vw,36px)/1.16 Georgia,"Songti SC",serif; }
+    .reflection-panel .lead { margin:9px 0 0; color:#cec4af; font-size:12px; line-height:1.65; }
+    .insight-list { display:grid; gap:8px; margin:0; }
+    .insight { border-top:1px solid rgba(255,245,212,.12); padding-top:9px; font-size:11px; line-height:1.55; }
+    .insight strong { color:#ead79d; }
+    .reflection-choices { display:flex; flex-wrap:wrap; gap:7px; margin:0 0 9px; }
+    .reflection-choice { border:1px solid rgba(234,215,157,.28); border-radius:999px; padding:8px 11px; color:#f8edcf; background:transparent; cursor:pointer; font-size:11px; }
+    .reflection-choice.is-selected { color:#3d3932; background:#ead79d; }
+    .reflection-input { width:100%; min-height:62px; resize:vertical; border:1px solid rgba(234,215,157,.2); border-radius:13px; padding:10px 12px; color:#fff8e8; background:rgba(255,255,255,.05); font:12px/1.55 inherit; }
+    .reflection-actions { display:flex; gap:9px; margin-top:10px; }
+    .reflection-action { flex:1; border:1px solid rgba(234,215,157,.32); border-radius:12px; padding:11px; cursor:pointer; background:transparent; color:#f8edcf; }
+    .reflection-action.primary { border-color:#ead79d; color:#3d3932; background:#ead79d; }
+    .saved-card { display:none; margin-top:14px; border:1px solid rgba(234,215,157,.25); border-radius:16px; padding:14px; background:rgba(255,255,255,.05); }
+    .saved-card.is-visible { display:block; }
+    .saved-card strong { display:block; margin-bottom:6px; color:#ead79d; }
+    .saved-card p { margin:0; color:#f7eed9; font:14px/1.6 Georgia,"Songti SC",serif; }
+    .saved-card small { display:block; margin-top:7px; color:#ada38e; }
+
+    @keyframes settle-in {
+      from { opacity: 0; transform: translate(-50%, 16px) scale(.96); }
+      to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    }
+
+    @media (max-width: 1100px) and (min-width: 901px) {
+      .reflection-panel { grid-template-columns:minmax(210px,.72fr) minmax(270px,1fr); }
+      .reflection-compose { grid-column:1 / -1; border-left:0; border-top:1px solid rgba(255,245,212,.13); padding:14px 0 0; }
+    }
+
+    @media (max-width: 900px) {
+      .page { padding: 14px; }
+      .topbar { grid-template-columns: auto 1fr auto; margin-bottom: 12px; }
+      .back span, .scene-pill, .scene-music-copy { display: none; }
+      .scene-music { min-width: 44px; width:44px; padding:7px; justify-content:center; }
+      .heading h1 { font-size: 22px; }
+      .scene-frame { width: 94vw; min-height: 0; height:auto; grid-template-columns:1fr; gap:12px; padding: 12px; border-radius: 24px; overflow:visible; }
+      .scene-image-wrap { height:auto; min-height:0; aspect-ratio:16 / 10; }
+      .scene-frame::after { top:12px; right:12px; bottom:auto; left:12px; height:auto; aspect-ratio:16 / 10; }
+      .scene-label { top: 28px; left: 28px; }
+      .artist-seat--left { left:31%; bottom:18%; width:76px; }
+      .artist-seat--right { left:65.5%; bottom:19%; width:74px; }
+      .artist-seat--back { left:48.5%; bottom:39%; width:56px; }
+      .seat-name--left { --seat-left:31%; --seat-bottom:8%; }
+      .seat-name--right { --seat-left:65.5%; --seat-bottom:9%; }
+      .seat-name--back { --seat-left:48.5%; --seat-bottom:30.5%; }
+      .reflection-panel { top:auto; left:auto; right:auto; bottom:auto; width:100%; height:auto; max-height:none; grid-template-columns:1fr; gap:14px; padding:18px; }
+      .reflection-insights,
+      .reflection-compose { border-left:0; border-top:1px solid rgba(255,245,212,.13); padding:14px 0 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .artist-seat { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <a class="back" href="listening-room.html">
+        <span class="back-icon">‹</span>
+        <span>返回共听剧场</span>
+      </a>
+
+      <div class="heading">
+        <p>第四幕 · 音乐发生地</p>
+        <h1>唱片室</h1>
+        <span>让刚才的音乐，在这里继续停留</span>
+      </div>
+
+      <div class="top-actions">
+        <button class="scene-music" id="sceneMusic" type="button" aria-label="播放第四幕背景音乐">
+          <span class="scene-music-icon" id="sceneMusicIcon" aria-hidden="true">▶</span>
+          <span class="scene-music-copy"><strong id="sceneMusicTitle">继续听刚才的音乐</strong><small id="sceneMusicStatus">正在准备</small></span>
+        </button>
+        <button class="round-button" type="button" aria-label="重新开始">↻</button>
+      </div>
+    </header>
+
+    <section class="scene-frame" aria-label="唱片室场景">
+      <div class="scene-image-wrap">
+        <img src="assets/visual/record-room-anime.jpg" alt="暖黄色动画插画风格的唱片室休息区">
+        <div class="seated-musicians" id="seatedMusicians" aria-label="今晚入座的三位音乐家">
+          <span class="seat-occlusion seat-occlusion--left" aria-hidden="true"></span>
+          <span class="seat-occlusion seat-occlusion--right" aria-hidden="true"></span>
+          <span class="seat-occlusion seat-occlusion--back" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="scene-label"><i></i>等待音乐家入座</div>
+      <aside class="reflection-panel" aria-label="听后回响">
+        <div class="reflection-intro">
+          <p class="eyebrow">LISTENING AFTERGLOW</p>
+          <h2>今晚，你听见了什么？</h2>
+          <p class="lead">让音乐停一会儿，再留下属于你的那一句。</p>
+        </div>
+        <div class="reflection-insights">
+          <div class="insight-list" id="insightList"></div>
+        </div>
+        <div class="reflection-compose">
+          <div class="reflection-choices" aria-label="选择联想方向">
+            <button class="reflection-choice" type="button" data-choice="一段关系">一段关系</button>
+            <button class="reflection-choice" type="button" data-choice="一个地方">一个地方</button>
+            <button class="reflection-choice" type="button" data-choice="最近的自己">最近的自己</button>
+          </div>
+          <textarea class="reflection-input" id="reflectionInput" placeholder="写下这一刻想到的画面、关系或心情。"></textarea>
+          <div class="reflection-actions">
+            <button class="reflection-action" id="listenAgain" type="button">再听一首</button>
+            <button class="reflection-action primary" id="saveCard" type="button">保存听歌卡片</button>
+          </div>
+          <div class="saved-card" id="savedCard"><strong>今晚的听歌卡片</strong><p id="savedCardText"></p><small>已保存在这台设备，可继续完善分享样式。</small></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+  <audio id="sceneAudio" preload="auto" loop></audio>
+  <script>
+    const musicianCatalog = {
+      boya: { name: '伯牙', image: 'musicians/cartoons/web-cutouts/01-boya.png' },
+      'ji-kang': { name: '嵇康', image: 'musicians/cartoons/web-cutouts/02-ji-kang.png' },
+      'zhu-zaiyu': { name: '朱载堉', image: 'musicians/cartoons/web-cutouts/03-zhu-zaiyu.png' },
+      abing: { name: '阿炳', image: 'musicians/cartoons/web-cutouts/04-abing.png' },
+      'xian-xinghai': { name: '冼星海', image: 'musicians/cartoons/web-cutouts/05-xian-xinghai.png' },
+      hildegard: { name: '希尔德加德', image: 'musicians/cartoons/web-cutouts/06-hildegard.png' },
+      bach: { name: '巴赫', image: 'musicians/cartoons/web-cutouts/07-bach.png' },
+      mozart: { name: '莫扎特', image: 'musicians/cartoons/web-cutouts/08-mozart.png' },
+      beethoven: { name: '贝多芬', image: 'musicians/cartoons/web-cutouts/09-beethoven.png' },
+      'scott-joplin': { name: '斯科特·乔普林', image: 'musicians/cartoons/web-cutouts/10-scott-joplin.png' }
+    };
+
+    let selectedIds = [];
+    try {
+      selectedIds = JSON.parse(localStorage.getItem('tuningCompanions') || '[]');
+    } catch {}
+    selectedIds = selectedIds.filter((id) => musicianCatalog[id]).slice(0, 3);
+    if (selectedIds.length < 3) selectedIds = ['boya', 'bach', 'beethoven'];
+
+    const seatClasses = ['artist-seat--left', 'artist-seat--right', 'artist-seat--back'];
+    const seatedMusicians = document.getElementById('seatedMusicians');
+    const productSessionId = sessionStorage.getItem('tuningProductSession') || crypto.randomUUID();
+    sessionStorage.setItem('tuningProductSession', productSessionId);
+    const trackEvent = (eventName, metadata = {}) => fetch('/api/events', { method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true, body:JSON.stringify({ session_id:productSessionId, event_name:eventName, metadata }) }).catch(() => {});
+    const fourthTrackLibrary = {
+      'river-flows-in-you': { title:'River Flows In You', audioSrc:'assets/audio/library/river-flows-in-you.mp3' },
+      'sonnet-piano': { title:'Sonnet', audioSrc:'assets/audio/library/sonnet.mp3' },
+      'city-of-stars': { title:'City of Stars', audioSrc:'assets/audio/library/city-of-stars.mp3' }
+    };
+    let lastTrackState = {};
+    try { lastTrackState = JSON.parse(sessionStorage.getItem('tuningLastListeningTrack') || '{}'); } catch {}
+    const currentFourthTrack = fourthTrackLibrary[lastTrackState.id] || fourthTrackLibrary['river-flows-in-you'];
+    const sceneAudio = document.getElementById('sceneAudio');
+    const sceneMusic = document.getElementById('sceneMusic');
+    const sceneMusicIcon = document.getElementById('sceneMusicIcon');
+    const sceneMusicTitle = document.getElementById('sceneMusicTitle');
+    const sceneMusicStatus = document.getElementById('sceneMusicStatus');
+    sceneAudio.src = currentFourthTrack.audioSrc;
+    sceneAudio.volume = .28;
+    sceneMusicTitle.textContent = currentFourthTrack.title;
+
+    const updateSceneMusicState = () => {
+      const playing = !sceneAudio.paused;
+      sceneMusic.classList.toggle('is-playing', playing);
+      sceneMusicIcon.textContent = playing ? 'Ⅱ' : '▶';
+      sceneMusicStatus.textContent = playing ? '轻声播放中' : '点击继续播放';
+      sceneMusic.setAttribute('aria-label', `${playing ? '暂停' : '播放'}《${currentFourthTrack.title}》`);
+    };
+    sceneAudio.addEventListener('loadedmetadata', () => {
+      const previousTime = Number(lastTrackState.currentTime) || 0;
+      const previousDuration = Number(lastTrackState.duration) || sceneAudio.duration;
+      sceneAudio.currentTime = previousTime > 0 && previousTime < previousDuration - 8 ? previousTime : 0;
+    }, { once:true });
+    sceneAudio.addEventListener('play', () => {
+      updateSceneMusicState();
+      trackEvent('fourth_act_music_started', { track:lastTrackState.id || 'river-flows-in-you' });
+    });
+    sceneAudio.addEventListener('pause', updateSceneMusicState);
+    const playSceneAudio = async () => {
+      try {
+        await sceneAudio.play();
+      } catch {
+        updateSceneMusicState();
+        sceneMusicStatus.textContent = '请点击允许播放';
+      }
+    };
+    sceneMusic.addEventListener('click', async () => {
+      if (sceneAudio.paused) await playSceneAudio();
+      else sceneAudio.pause();
+      updateSceneMusicState();
+    });
+    playSceneAudio();
+    updateSceneMusicState();
+    const insights = {
+      mozart: '旋律像人物对白，靠近和退让都在改变关系。',
+      bach: '低音与上方声部彼此支撑，安静也有清楚的秩序。',
+      beethoven: '力量没有爆发，它在克制中一点点变得无法忽略。',
+      boya: '留白让听者把自己的记忆放进声音。'
+    };
+    selectedIds.forEach((id, index) => {
+      const musician = musicianCatalog[id];
+      const seat = document.createElement('figure');
+      seat.className = `artist-seat ${seatClasses[index]}`;
+      seat.innerHTML = `<img src="${musician.image}" alt="${musician.name}"><figcaption>${musician.name}</figcaption>`;
+      seatedMusicians.appendChild(seat);
+      const name = document.createElement('span');
+      name.className = `seat-name seat-name--${['left', 'right', 'back'][index]}`;
+      name.textContent = musician.name;
+      seatedMusicians.appendChild(name);
+    });
+
+    document.getElementById('insightList').replaceChildren(...selectedIds.map((id) => {
+      const item = document.createElement('div'); item.className = 'insight';
+      item.innerHTML = `<strong>${musicianCatalog[id].name}</strong>　${insights[id] || '他留下了一个不同的听觉入口，等待你写下自己的答案。'}`;
+      return item;
+    }));
+
+    document.querySelector('.scene-label').innerHTML = '<i></i>三位音乐家已经入座';
+    trackEvent('fourth_act_completed');
+
+    let reflectionChoice = '';
+    document.querySelectorAll('.reflection-choice').forEach((button) => button.addEventListener('click', () => {
+      document.querySelectorAll('.reflection-choice').forEach((item) => item.classList.toggle('is-selected', item === button));
+      reflectionChoice = button.dataset.choice;
+      document.getElementById('reflectionInput').focus();
+    }));
+    document.getElementById('saveCard').addEventListener('click', () => {
+      const input = document.getElementById('reflectionInput');
+      const reflection = input.value.trim() || (reflectionChoice ? `它让我想起${reflectionChoice}。` : '我还说不清，但这段音乐让我停留了一会儿。');
+      const card = { piece:currentFourthTrack.title, reflection, companions:selectedIds, saved_at:new Date().toISOString() };
+      localStorage.setItem('tuningListeningCard', JSON.stringify(card));
+      document.getElementById('savedCardText').textContent = `我在《${card.piece}》里听见了：${reflection}`;
+      document.getElementById('savedCard').classList.add('is-visible');
+      trackEvent('listening_card_saved', { has_custom_text:Boolean(input.value.trim()), reflection_choice:reflectionChoice });
+    });
+    document.getElementById('listenAgain').addEventListener('click', () => {
+      trackEvent('listen_again_intent', { source:'fourth_act' });
+      window.location.href = 'listening-room.html';
+    });
+    document.querySelector('.round-button').addEventListener('click', () => {
+      localStorage.removeItem('tuningListeningCard');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>

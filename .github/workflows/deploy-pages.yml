@@ -1,0 +1,39 @@
+name: Deploy GitHub Pages demo
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static demo
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: tuning in2/tuning-in-demo-minimal/知音-web-deploy
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
