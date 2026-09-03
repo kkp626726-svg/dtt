@@ -489,11 +489,15 @@
     const seatedMusicians = document.getElementById('seatedMusicians');
     const productSessionId = sessionStorage.getItem('tuningProductSession') || crypto.randomUUID();
     sessionStorage.setItem('tuningProductSession', productSessionId);
-    const trackEvent = (eventName, metadata = {}) => fetch('/api/events', { method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true, body:JSON.stringify({ session_id:productSessionId, event_name:eventName, metadata }) }).catch(() => {});
+    const publicBackendUrl = 'https://ssvdnn5sq0amjs370rfm7.apigateway-cn-beijing.volceapi.com';
+    const isGitHubPages = window.location.hostname.endsWith('.github.io');
+    const publicApiUrl = (pathname) => `${isGitHubPages ? publicBackendUrl : ''}${pathname}`;
+    const publicAssetUrl = (pathname) => isGitHubPages ? `${publicBackendUrl}/${pathname.replace(/^\/+/, '')}` : pathname;
+    const trackEvent = (eventName, metadata = {}) => fetch(publicApiUrl('/api/events'), { method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true, body:JSON.stringify({ session_id:productSessionId, event_name:eventName, metadata }) }).catch(() => {});
     const fourthTrackLibrary = {
-      'river-flows-in-you': { title:'River Flows In You', audioSrc:'assets/audio/library/river-flows-in-you.mp3' },
-      'sonnet-piano': { title:'Sonnet', audioSrc:'assets/audio/library/sonnet.mp3' },
-      'city-of-stars': { title:'City of Stars', audioSrc:'assets/audio/library/city-of-stars.mp3' }
+      'river-flows-in-you': { title:'River Flows In You', audioSrc:publicAssetUrl('assets/audio/library/river-flows-in-you.mp3') },
+      'sonnet-piano': { title:'Sonnet', audioSrc:publicAssetUrl('assets/audio/library/sonnet.mp3') },
+      'city-of-stars': { title:'City of Stars', audioSrc:publicAssetUrl('assets/audio/library/city-of-stars.mp3') }
     };
     let lastTrackState = {};
     try { lastTrackState = JSON.parse(sessionStorage.getItem('tuningLastListeningTrack') || '{}'); } catch {}

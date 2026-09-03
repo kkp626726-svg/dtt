@@ -12,9 +12,15 @@ const musicianCatalog = {
 };
 const smartMusicianIds = new Set(['mozart', 'beethoven', 'bach']);
 const localPreviewHost = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
-const staticDemoMode = !localPreviewHost || new URLSearchParams(window.location.search).has('demo');
-const apiBaseUrl = localPreviewHost && window.location.port !== '4317' ? 'http://127.0.0.1:4317' : '';
+const publicBackendUrl = 'https://ssvdnn5sq0amjs370rfm7.apigateway-cn-beijing.volceapi.com';
+const isGitHubPages = window.location.hostname.endsWith('.github.io');
+const apiBaseUrl = isGitHubPages
+  ? publicBackendUrl
+  : localPreviewHost && window.location.port !== '4317'
+    ? 'http://127.0.0.1:4317'
+    : '';
 const apiUrl = (pathname) => `${apiBaseUrl}${pathname}`;
+const publicAssetUrl = (pathname) => isGitHubPages ? `${publicBackendUrl}/${pathname.replace(/^\/+/, '')}` : pathname;
 const waitForBackendRetry = (milliseconds) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 
 async function ensureBackendAvailable() {
@@ -325,8 +331,8 @@ function currentListeningCues() {
 
 const trackLibrary = {
   'river-flows-in-you': {
-    src: 'assets/video/library/river-flows-in-you-performance.mp4',
-    audioSrc: 'assets/audio/library/river-flows-in-you.mp3',
+    src: publicAssetUrl('assets/video/library/river-flows-in-you-performance.mp4'),
+    audioSrc: publicAssetUrl('assets/audio/library/river-flows-in-you.mp3'),
     poster: 'assets/visual/library/river-flows-in-you-performance.jpg',
     mediaType: 'video',
     title: 'River Flows In You',
@@ -347,8 +353,8 @@ const trackLibrary = {
     sourceNote: '节点依据音量、音色、节奏密度与段落变化检测后人工整理。莫扎特、巴赫与贝多芬在此作为三种聆听视角，不代表历史人物本人评价现代作品。'
   },
   'sonnet-piano': {
-    src: 'assets/video/library/sonnet-performance.mp4',
-    audioSrc: 'assets/audio/library/sonnet.mp3',
+    src: publicAssetUrl('assets/video/library/sonnet-performance.mp4'),
+    audioSrc: publicAssetUrl('assets/audio/library/sonnet.mp3'),
     poster: 'assets/visual/library/sonnet-performance.jpg',
     mediaType: 'video',
     title: 'Sonnet',
@@ -369,8 +375,8 @@ const trackLibrary = {
     sourceNote: '曲名“Sonnet”来自视频画面，作曲者尚未从可靠来源核验，因此不作作者归属。节点依据响度、音色、密度与段落变化检测后人工复核；三位人物是受其音乐观念启发的聆听视角，不代表历史人物本人评价该演奏。'
   },
   'city-of-stars': {
-    src: 'assets/video/library/city-of-stars-performance.mp4',
-    audioSrc: 'assets/audio/library/city-of-stars.mp3',
+    src: publicAssetUrl('assets/video/library/city-of-stars-performance.mp4'),
+    audioSrc: publicAssetUrl('assets/audio/library/city-of-stars.mp3'),
     poster: 'assets/visual/library/city-of-stars-performance.jpg',
     mediaType: 'video',
     title: 'City of Stars',
@@ -1056,15 +1062,6 @@ async function answerQuestion(question, options = {}) {
 
   if (selectedSmartIds.length === 0) {
     renderStaticResponses(requestedGroupAnswer ? selectedIds : [selectedId || selectedIds[activeSpeaker]], playbackTime);
-    return;
-  }
-
-  if (staticDemoMode) {
-    const demoIds = requestedGroupAnswer
-      ? selectedIds
-      : [selectedId || selectedIds[activeSpeaker]];
-    renderStaticResponses(demoIds, playbackTime);
-    showToast('当前为 GitHub Pages 演示模式，回答使用内置示例。');
     return;
   }
 
